@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approval Requested</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      max-width: 440px;
+      width: 100%;
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .icon.loading { background: #fef3c7; animation: pulse 1.5s infinite; }
+    .icon.success { background: #dcfce7; }
+    .icon.error { background: #fee2e2; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    h1 { font-size: 24px; font-weight: 600; color: #18181b; margin-bottom: 8px; }
+    .wo-info { font-size: 15px; color: #71717a; margin-bottom: 8px; }
+    .property { font-size: 14px; color: #52525b; margin-bottom: 20px; }
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      background: #fef3c7;
+      color: #92400e;
+      margin-bottom: 24px;
+    }
+    .next-steps {
+      background: #f4f4f5;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .next-steps h3 { font-size: 14px; font-weight: 600; color: #18181b; margin-bottom: 12px; }
+    .step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .step:last-child { margin-bottom: 0; }
+    .step-number {
+      width: 24px; height: 24px;
+      background: #e4e4e7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #52525b;
+      flex-shrink: 0;
+    }
+    .step-text { font-size: 14px; color: #52525b; line-height: 1.5; }
+    .close-hint { font-size: 13px; color: #a1a1aa; }
+    .error-message { color: #dc2626; font-size: 14px; margin: 12px 0; }
+    .retry-btn {
+      padding: 12px 24px;
+      background: #18181b; color: white;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+    }
+    .retry-btn:hover { background: #27272a; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Loading State -->
+    <div id="loadingState">
+      <div class="icon loading">⏳</div>
+      <h1>Updating...</h1>
+      <p class="wo-info">Recording approval request</p>
+    </div>
+    
+    <!-- Success State -->
+    <div id="successState" class="hidden">
+      <div class="icon success">✓</div>
+      <h1>Recorded!</h1>
+      <p class="wo-info">WO #<span id="woNumber"></span></p>
+      <p class="property" id="propertyAddress"></p>
+      <span class="status-badge">Approval Requested → Pending</span>
+      
+      <div class="next-steps">
+        <h3>What happens next:</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <span class="step-text">Wait for owner's response</span>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <span class="step-text">When approved, update Approval Status to <strong>"Approved"</strong> in the pipeline</span>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <span class="step-text">Keith will be automatically notified to schedule</span>
+        </div>
+      </div>
+      
+      <p class="close-hint">You can close this tab</p>
+    </div>
+    
+    <!-- Error State -->
+    <div id="errorState" class="hidden">
+      <div class="icon error">✕</div>
+      <h1>Something went wrong</h1>
+      <p class="error-message" id="errorMessage"></p>
+      <button class="retry-btn" onclick="submitRequest()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const wo = params.get('wo') || '';
+    const property = params.get('property') || '';
+    const token = params.get('token') || '';
+    
+    // REPLACE with your Zapier webhook URL for Zap 3
+    const WEBHOOK_URL = 'YOUR_ZAP3_WEBHOOK_URL_HERE';
+    
+    document.getElementById('woNumber').textContent = wo;
+    document.getElementById('propertyAddress').textContent = decodeURIComponent(property);
+    
+    async function submitRequest() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('successState').classList.add('hidden');
+      document.getElementById('errorState').classList.add('hidden');
+      
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify({
+            wo: wo,
+            action: 'approval_requested',
+            token: token,
+            timestamp: new Date().toISOString()
+          })
+        });
+        
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('successState').classList.remove('hidden');
+        
+      } catch (error) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').classList.remove('hidden');
+        document.getElementById('errorMessage').textContent = error.message;
+      }
+    }
+    
+    submitRequest();
+  </script>
+</body>
+</html>
