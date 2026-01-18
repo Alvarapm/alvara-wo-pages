@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Submitted</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .icon {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .icon.loading {
+      background: #fef3c7;
+      animation: pulse 1.5s infinite;
+    }
+    .icon.error {
+      background: #fee2e2;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .wo-number {
+      font-size: 15px;
+      color: #71717a;
+      margin-bottom: 16px;
+    }
+    .message {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status-badge.under {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status-badge.over {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .next-step {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f4f4f5;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #52525b;
+    }
+    .next-step strong {
+      color: #18181b;
+    }
+    .close-hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    .error-message {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+    .retry-btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .retry-btn:hover {
+      background: #27272a;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Loading State -->
+    <div id="loadingState">
+      <div class="icon loading">⏳</div>
+      <h1>Submitting...</h1>
+      <p class="message">Recording your review</p>
+    </div>
+    
+    <!-- Success State (Under $500) -->
+    <div id="successUnder" style="display: none;">
+      <div class="icon">✓</div>
+      <h1>Review Submitted!</h1>
+      <p class="wo-number">WO #<span id="woNumberUnder"></span></p>
+      <span class="status-badge under">Under $500 — Pending Schedule</span>
+      <div class="next-step">
+        <strong>Next:</strong> Add appointment date, time & tech in the pipeline, then set to "Dispatch Ready"
+      </div>
+      <p class="close-hint">You can close this tab</p>
+    </div>
+    
+    <!-- Success State (Over $500) -->
+    <div id="successOver" style="display: none;">
+      <div class="icon" style="background: #fef3c7;">⚠️</div>
+      <h1>Flagged for Approval</h1>
+      <p class="wo-number">WO #<span id="woNumberOver"></span></p>
+      <span class="status-badge over">Over $500 — Bree Notified</span>
+      <div class="next-step">
+        <strong>Next:</strong> Bree will contact the owner for approval. You'll be notified when it's ready to schedule.
+      </div>
+      <p class="close-hint">You can close this tab</p>
+    </div>
+    
+    <!-- Error State -->
+    <div id="errorState" style="display: none;">
+      <div class="icon error">✕</div>
+      <h1>Something went wrong</h1>
+      <p class="error-message" id="errorMessage"></p>
+      <button class="retry-btn" onclick="submitReview()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const wo = params.get('wo') || '';
+    const status = params.get('status') || '';
+    const limit = params.get('limit') || '500';
+    
+    // Your Zapier webhook URL - REPLACE THIS
+    const WEBHOOK_URL = 'YOUR_ZAPIER_WEBHOOK_URL_HERE';
+    
+    // Update WO numbers in UI
+    document.getElementById('woNumberUnder').textContent = wo;
+    document.getElementById('woNumberOver').textContent = wo;
+    
+    async function submitReview() {
+      // Show loading
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('successUnder').style.display = 'none';
+      document.getElementById('successOver').style.display = 'none';
+      document.getElementById('errorState').style.display = 'none';
+      
+      try {
+        // Send to Zapier webhook
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors', // Zapier webhooks don't support CORS
+          body: JSON.stringify({
+            wo: wo,
+            status: status,
+            limit: limit,
+            timestamp: new Date().toISOString()
+          })
+        });
+        
+        // Hide loading
+        document.getElementById('loadingState').style.display = 'none';
+        
+        // Show appropriate success state
+        if (status === 'under' || status === 'under500') {
+          document.getElementById('successUnder').style.display = 'block';
+        } else {
+          document.getElementById('successOver').style.display = 'block';
+        }
+        
+      } catch (error) {
+        // Show error state
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent = error.message;
+      }
+    }
+    
+    // Auto-submit on page load
+    submitReview();
+  </script>
+</body>
+</html>

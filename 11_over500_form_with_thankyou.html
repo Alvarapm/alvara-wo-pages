@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Over $500 Review</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 24px;
+      border-bottom: 1px solid #fcd34d;
+    }
+    .badge {
+      display: inline-block;
+      background: #92400e;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #78350f;
+      margin-bottom: 4px;
+    }
+    .header .property {
+      font-size: 14px;
+      color: #92400e;
+    }
+    .form-body {
+      padding: 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .hint {
+      font-size: 13px;
+      color: #71717a;
+      margin-bottom: 8px;
+    }
+    /* Odds selector */
+    .odds-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .odds-option {
+      position: relative;
+    }
+    .odds-option input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .odds-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      background: #f4f4f5;
+      border: 2px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #52525b;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin: 0;
+    }
+    .odds-option input:checked + label {
+      background: #18181b;
+      border-color: #18181b;
+      color: white;
+    }
+    .odds-option label:hover {
+      border-color: #a1a1aa;
+    }
+    /* Textarea */
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.15s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #18181b;
+    }
+    textarea::placeholder {
+      color: #a1a1aa;
+    }
+    .char-count {
+      text-align: right;
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 4px;
+    }
+    /* Button */
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px 24px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button[type="submit"]:hover {
+      background: #27272a;
+    }
+    button[type="submit"]:disabled {
+      background: #a1a1aa;
+      cursor: not-allowed;
+    }
+    /* Success state */
+    .success-state {
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .success-state h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .success-state p {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.5;
+    }
+    .success-state .next-steps {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0fdf4;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .success-state .next-steps p {
+      font-size: 14px;
+      color: #166534;
+    }
+    .close-hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Form View -->
+    <div id="formView">
+      <div class="header">
+        <span class="badge">⚠️ Over $500</span>
+        <h1>WO #<span id="woNumber"></span></h1>
+        <p class="property" id="propertyAddress"></p>
+      </div>
+      
+      <form id="reviewForm" class="form-body">
+        <div class="form-group">
+          <label>Likelihood of exceeding $500</label>
+          <div class="odds-grid">
+            <div class="odds-option">
+              <input type="radio" id="odds25" name="odds" value="~25%" required>
+              <label for="odds25">~25%</label>
+            </div>
+            <div class="odds-option">
+              <input type="radio" id="odds50" name="odds" value="~50%">
+              <label for="odds50">~50%</label>
+            </div>
+            <div class="odds-option">
+              <input type="radio" id="odds75" name="odds" value="~75%">
+              <label for="odds75">~75%</label>
+            </div>
+            <div class="odds-option">
+              <input type="radio" id="odds90" name="odds" value="90%+">
+              <label for="odds90">90%+</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="notes">Why might this exceed $500?</label>
+          <p class="hint">2-3 sentences for Bree to share with the owner</p>
+          <textarea 
+            id="notes" 
+            name="notes" 
+            placeholder="e.g., Water heater is 15+ years old and showing signs of failure. Based on symptoms described (no hot water, rust-colored water), likely needs full replacement rather than repair..."
+            required
+            minlength="20"
+            maxlength="500"
+          ></textarea>
+          <p class="char-count"><span id="charCount">0</span>/500</p>
+        </div>
+        
+        <button type="submit" id="submitBtn">
+          Submit & Notify Bree
+        </button>
+      </form>
+    </div>
+    
+    <!-- Success View -->
+    <div id="successView" class="success-state hidden">
+      <div class="success-icon">✓</div>
+      <h2>Submitted!</h2>
+      <p>WO #<span id="woNumberSuccess"></span> flagged for owner approval</p>
+      <div class="next-steps">
+        <p><strong>What happens next:</strong></p>
+        <p>• Bree receives your notes via SMS & email</p>
+        <p>• Bree contacts the owner for approval</p>
+        <p>• You'll be notified when approved & ready to schedule</p>
+      </div>
+      <p class="close-hint">You can close this tab</p>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const wo = params.get('wo') || '';
+    const property = params.get('property') || '';
+    const limit = params.get('limit') || '500';
+    
+    // Your Zapier webhook URL - REPLACE THIS
+    const WEBHOOK_URL = 'YOUR_ZAPIER_WEBHOOK_URL_HERE';
+    
+    // Populate UI
+    document.getElementById('woNumber').textContent = wo;
+    document.getElementById('woNumberSuccess').textContent = wo;
+    document.getElementById('propertyAddress').textContent = decodeURIComponent(property);
+    
+    // Character counter
+    const notesField = document.getElementById('notes');
+    const charCount = document.getElementById('charCount');
+    notesField.addEventListener('input', () => {
+      charCount.textContent = notesField.value.length;
+    });
+    
+    // Form submission
+    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      
+      const formData = new FormData(e.target);
+      
+      const data = {
+        wo: wo,
+        status: 'over500',
+        limit: limit,
+        odds: formData.get('odds'),
+        notes: formData.get('notes'),
+        timestamp: new Date().toISOString()
+      };
+      
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify(data)
+        });
+        
+        // Show success
+        document.getElementById('formView').classList.add('hidden');
+        document.getElementById('successView').classList.remove('hidden');
+        
+      } catch (error) {
+        btn.disabled = false;
+        btn.textContent = 'Submit & Notify Bree';
+        alert('Error submitting. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>
