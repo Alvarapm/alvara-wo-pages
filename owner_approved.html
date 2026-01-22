@@ -38,11 +38,9 @@
     .icon.success { background: #dcfce7; }
     .icon.error { background: #fee2e2; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
     h1 { font-size: 24px; font-weight: 600; color: #18181b; margin-bottom: 8px; }
     .wo-info { font-size: 15px; color: #71717a; margin-bottom: 8px; }
     .property { font-size: 14px; color: #52525b; margin-bottom: 20px; }
-
     .status-badge {
       display: inline-block;
       padding: 8px 16px;
@@ -53,7 +51,6 @@
       color: #166534;
       margin-bottom: 24px;
     }
-
     .next-steps {
       background: #f4f4f5;
       border-radius: 12px;
@@ -73,7 +70,6 @@
       flex-shrink: 0;
     }
     .step-text { font-size: 14px; color: #52525b; line-height: 1.5; }
-
     .close-hint { font-size: 13px; color: #a1a1aa; }
     .error-message { color: #dc2626; font-size: 14px; margin: 12px 0; }
     .retry-btn {
@@ -84,7 +80,6 @@
     }
     .retry-btn:hover { background: #27272a; }
     .hidden { display: none; }
-
     .debug {
       margin-top: 18px;
       font-size: 11px;
@@ -146,7 +141,6 @@
     <div class="debug" id="debugBox"></div>
   </div>
 
-  <!-- Hidden iframe for POST fallback -->
   <iframe name="zapier_iframe" id="zapier_iframe" style="display:none;"></iframe>
 
   <script>
@@ -154,13 +148,17 @@
     const wo = params.get('wo') || '';
     const property = params.get('property') || '';
     const token = params.get('token') || '';
-    const actionFromLink = params.get('action') || ''; // approve
-    const typeFromLink = params.get('type') || '';     // requote
+    const linkAction = params.get('action') || ''; // approve
+    const linkType = params.get('type') || '';     // requote
 
-    // IMPORTANT: this MUST be the exact Catch Hook URL of the Zap that is ON
+    // IMPORTANT: use your actual hook (the one that works)
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uqyfd8n/';
 
-    // UI elements
+    // --- Set defaults to match “Main form” ---
+    const APPROVED_BY_NAME = 'Andrey Afanasenko';
+    const APPROVED_BY_EMAIL = 'andrei@alvarapm.com';
+
+    // UI
     const loadingState = document.getElementById('loadingState');
     const successState = document.getElementById('successState');
     const errorState = document.getElementById('errorState');
@@ -168,13 +166,14 @@
 
     document.getElementById('woNumber').textContent = wo || '(missing)';
     document.getElementById('propertyAddress').textContent = safeDecode(property || '');
+
     document.getElementById('debugBox').textContent =
       `Debug:\n` +
       `wo=${wo}\n` +
       `token=${token}\n` +
       `property=${safeDecode(property)}\n` +
-      `action=${actionFromLink}\n` +
-      `type=${typeFromLink}\n` +
+      `link_action=${linkAction}\n` +
+      `link_type=${linkType}\n` +
       `webhook=${WEBHOOK_URL}`;
 
     function safeDecode(v) {
@@ -200,42 +199,6 @@
       errorMessage.textContent = msg || 'Unknown error';
     }
 
-    function toUrlEncoded(obj) {
-      const usp = new URLSearchParams();
-      Object.entries(obj).forEach(([k, v]) => usp.append(k, v == null ? '' : String(v)));
-      return usp.toString();
-    }
-
-    function postViaHiddenForm(url, payloadObj) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = url;
-      form.target = 'zapier_iframe';
-      form.enctype = 'application/x-www-form-urlencoded';
-
-      Object.entries(payloadObj).forEach(([k, v]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = k;
-        input.value = v == null ? '' : String(v);
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-    }
-
-    function sendViaBeacon(url, urlEncodedBody) {
-      if (!navigator.sendBeacon) return false;
-      try {
-        const blob = new Blob([urlEncodedBody], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
-        return navigator.sendBeacon(url, blob);
-      } catch (e) {
-        return false;
-      }
-    }
-
     async function submitRequest() {
       showLoading();
 
@@ -244,65 +207,47 @@
         return;
       }
 
-      // Avoid duplicates on reload/back-forward within the same tab session
-      const dedupeKey = `ownerApproved:${wo}:${token}:${typeFromLink}`;
+      // Prevent duplicates in the same tab/session
+      const dedupeKey = `ownerApproved:${wo}:${token}:${linkType}`;
       if (sessionStorage.getItem(dedupeKey) === '1') {
         showSuccess();
         return;
       }
       sessionStorage.setItem(dedupeKey, '1');
 
-      const payload = {
-        wo_number: wo,
-        property: safeDecode(property || ''),
-        token: token,
-        action: 'owner_approved',
-        link_action: actionFromLink,
-        link_type: typeFromLink,
-        timestamp: new Date().toISOString(),
-        source: 'email_button',
-        _cb: Date.now() // cache buster
+      // ---- THIS is the unified payload (Main form has priority) ----
+      const unifiedPayload = {
+        // Main-form keys (priority)
+        "Wo Id": wo,
+        "property": safeDecode(property || ''),
+        "Action": "approved",
+        "Approved By": APPROVED_BY_NAME,
+        "Approved By Email": APPROVED_BY_EMAIL,
+        "Approved At": new Date().toISOString(),
+        "querystring": window.location.search || '',
+
+        // Keep extra fields for audit/debug (optional but useful)
+        "token": token,
+        "link_action": linkAction,
+        "link_type": linkType,
+        "source": "email_button"
       };
 
-      // 1) Primary: fetch no-cors JSON (как в твоём примере)
       try {
+        // Same pattern as your working page
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           mode: 'no-cors',
           keepalive: true,
-          body: JSON.stringify(payload)
+          body: JSON.stringify(unifiedPayload)
         });
 
-        // 2) Fallbacks in parallel (don’t block UI)
-        // These help in weird email webviews / strict privacy environments
-        try {
-          const encoded = toUrlEncoded(payload);
-          sendViaBeacon(WEBHOOK_URL, encoded);
-        } catch (e) {}
-
-        try {
-          postViaHiddenForm(WEBHOOK_URL, payload);
-        } catch (e) {}
-
-        // UX: show success (no-cors never gives a reliable response anyway)
         showSuccess();
 
       } catch (error) {
-        // If fetch itself throws (network error), try the fallbacks and still show success,
-        // because they might land even when fetch fails in a webview.
-        try {
-          const encoded = toUrlEncoded(payload);
-          const beaconOk = sendViaBeacon(WEBHOOK_URL, encoded);
-          postViaHiddenForm(WEBHOOK_URL, payload);
-          showSuccess();
-          if (!beaconOk) {
-            // Keep a hint in error box if you prefer strict mode.
-            // showError('Network blocked the request. Please try again from a regular browser.');
-          }
-        } catch (e) {
-          showError(error.message || 'Request failed');
-        }
+        // Even if fetch fails, show a helpful error (you can switch to "showSuccess()" if you want)
+        showError(error.message || 'Request failed');
       }
     }
 
