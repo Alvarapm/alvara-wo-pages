@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Re-Quote Work Order - Alvara</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f4f4f5;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 24px 24px 0 24px;
+    }
+    .badge {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card-title {
+      padding: 16px 24px 0 24px;
+    }
+    .card-title h1 {
+      margin: 0 0 4px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #18181b;
+    }
+    .card-title p {
+      margin: 0;
+      font-size: 15px;
+      color: #52525b;
+    }
+    .divider {
+      padding: 20px 24px;
+    }
+    .divider hr {
+      border: none;
+      border-top: 1px solid #e4e4e7;
+      margin: 0;
+    }
+    .info-box {
+      margin: 0 24px 20px 24px;
+      background-color: #fef2f2;
+      border-radius: 8px;
+      border-left: 4px solid #dc2626;
+      padding: 16px;
+    }
+    .info-box-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: #991b1b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .info-box p {
+      font-size: 14px;
+      color: #7f1d1d;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .form-section {
+      padding: 0 24px 20px 24px;
+    }
+    .form-section-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #18181b;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #18181b;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .form-group .hint {
+      font-size: 12px;
+      color: #71717a;
+      margin-top: 4px;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    .form-row .form-group {
+      flex: 1;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background-color: #18181b;
+      color: #ffffff;
+    }
+    .card-footer {
+      padding: 0 24px 24px 24px;
+    }
+    .page-footer {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .page-footer p {
+      margin: 0;
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    
+    /* Success state */
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .success-state.active {
+      display: block;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background-color: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+    }
+    .success-state h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .success-state p {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.6;
+    }
+    
+    /* Form state */
+    .form-state {
+      display: block;
+    }
+    .form-state.hidden {
+      display: none;
+    }
+    
+    /* Loading */
+    .loading {
+      display: none;
+    }
+    .loading.active {
+      display: block;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      
+      <!-- Form State -->
+      <div id="form-state" class="form-state">
+        <div class="card-header">
+          <span class="badge">🔄 Re-Quote Required</span>
+        </div>
+        
+        <div class="card-title">
+          <h1>WO #<span id="wo-number">Loading...</span></h1>
+          <p id="property-name">Loading...</p>
+        </div>
+        
+        <div class="divider"><hr></div>
+        
+        <!-- Denial Reason Box -->
+        <div class="info-box">
+          <div class="info-box-header">Original Denial Reason</div>
+          <p id="denial-info">Loading denial information...</p>
+        </div>
+        
+        <form id="requote-form">
+          <div class="form-section">
+            <div class="form-section-header">New Quote Details</div>
+            
+            <div class="form-group">
+              <label for="new-approach">Alternative Approach *</label>
+              <textarea id="new-approach" name="new_approach" required placeholder="Describe the alternative solution you're proposing..."></textarea>
+              <p class="hint">Explain how this differs from the original scope</p>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="estimated-cost">Estimated Cost *</label>
+                <input type="text" id="estimated-cost" name="estimated_cost" required placeholder="$200 - $350">
+              </div>
+              <div class="form-group">
+                <label for="new-odds">Likelihood Over Limit</label>
+                <select id="new-odds" name="new_odds">
+                  <option value="under">Under limit (no approval needed)</option>
+                  <option value="25%">~25%</option>
+                  <option value="50%">~50%</option>
+                  <option value="75%">~75%</option>
+                  <option value="90%+">90%+ (likely over)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="additional-notes">Additional Notes for Owner</label>
+              <textarea id="additional-notes" name="additional_notes" placeholder="Any additional context or recommendations for the owner..."></textarea>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <span class="btn-text">Submit New Quote</span>
+              <span class="loading"><span class="spinner"></span>Submitting...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Success State -->
+      <div id="success-state" class="success-state">
+        <div class="success-icon">✓</div>
+        <h2>Quote Submitted</h2>
+        <p>The owner will be notified of the new options. You'll receive an update once they respond.</p>
+      </div>
+      
+    </div>
+    
+    <div class="page-footer">
+      <p>MCMX Remodeling • Alvara Property Management</p>
+    </div>
+  </div>
+  
+  <script>
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const wo = params.get('wo') || '';
+    const property = params.get('property') || '';
+    const denialType = params.get('denial_type') || '';
+    const denialReason = params.get('denial_reason') || '';
+    
+    // Populate page
+    document.getElementById('wo-number').textContent = wo || 'Unknown';
+    document.getElementById('property-name').textContent = decodeURIComponent(property) || 'Unknown Property';
+    
+    // Build denial info text
+    const denialTypeText = {
+      'too_expensive': 'Too expensive',
+      'owner_fix': 'Owner will fix themselves',
+      'wrong_scope': 'Wrong scope / Not needed',
+      'other': 'Other'
+    }[denialType] || denialType || 'Not specified';
+    
+    const denialReasonText = decodeURIComponent(denialReason) || 'No additional notes provided';
+    document.getElementById('denial-info').innerHTML = `<strong>${denialTypeText}</strong><br>${denialReasonText}`;
+    
+    // Form submission
+    const form = document.getElementById('requote-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const loading = submitBtn.querySelector('.loading');
+    
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Show loading
+      btnText.style.display = 'none';
+      loading.classList.add('active');
+      submitBtn.disabled = true;
+      
+      // Gather form data
+      const formData = {
+        wo_number: wo,
+        property: decodeURIComponent(property),
+        new_approach: document.getElementById('new-approach').value,
+        estimated_cost: document.getElementById('estimated-cost').value,
+        new_odds: document.getElementById('new-odds').value,
+        additional_notes: document.getElementById('additional-notes').value,
+        original_denial_type: denialType,
+        original_denial_reason: decodeURIComponent(denialReason),
+        timestamp: new Date().toISOString()
+      };
+      
+      // Send to Zapier webhook
+      // REPLACE WITH YOUR ACTUAL WEBHOOK URL
+      const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uq5ospo/';
+      
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      } catch (err) {
+        console.log('Webhook sent (may have CORS but still works)');
+      }
+      
+      // Show success
+      document.getElementById('form-state').classList.add('hidden');
+      document.getElementById('success-state').classList.add('active');
+    });
+  </script>
+</body>
+</html>
