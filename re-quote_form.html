@@ -11,14 +11,19 @@
       background-color: #f4f4f5;
       min-height: 100vh;
       padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .container { max-width: 520px; margin: 0 auto; }
+    .container { max-width: 520px; width: 100%; }
+
     .card {
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       overflow: hidden;
     }
+
     .card-header { padding: 24px 24px 0 24px; }
     .badge {
       display: inline-block;
@@ -31,6 +36,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
     .card-title { padding: 16px 24px 0 24px; }
     .card-title h1 {
       margin: 0 0 4px 0;
@@ -39,8 +45,10 @@
       color: #18181b;
     }
     .card-title p { margin: 0; font-size: 15px; color: #52525b; }
+
     .divider { padding: 20px 24px; }
     .divider hr { border: none; border-top: 1px solid #e4e4e7; margin: 0; }
+
     .info-box {
       margin: 0 24px 20px 24px;
       background-color: #fef2f2;
@@ -57,6 +65,7 @@
       margin-bottom: 8px;
     }
     .info-box p { font-size: 14px; color: #7f1d1d; line-height: 1.5; margin: 0; }
+
     .form-section { padding: 0 24px 20px 24px; }
     .form-section-header {
       font-size: 12px;
@@ -66,6 +75,7 @@
       letter-spacing: 0.5px;
       margin-bottom: 16px;
     }
+
     .form-group { margin-bottom: 16px; }
     .form-group label {
       display: block;
@@ -84,7 +94,6 @@
       border-radius: 8px;
       background: #ffffff;
       color: #18181b;
-      transition: border-color 0.2s;
     }
     .form-group input:focus,
     .form-group select:focus,
@@ -94,8 +103,12 @@
     }
     .form-group textarea { min-height: 100px; resize: vertical; }
     .form-group .hint { font-size: 12px; color: #71717a; margin-top: 4px; }
+
     .form-row { display: flex; gap: 12px; }
     .form-row .form-group { flex: 1; }
+
+    .card-footer { padding: 0 24px 24px 24px; }
+
     .btn {
       display: block;
       width: 100%;
@@ -111,13 +124,35 @@
     .btn:hover { opacity: 0.9; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background-color: #18181b; color: #ffffff; }
-    .card-footer { padding: 0 24px 24px 24px; }
 
     .page-footer { text-align: center; padding: 20px 0; }
     .page-footer p { margin: 0; font-size: 12px; color: #a1a1aa; }
 
-    /* Success state */
-    .success-state { display: none; text-align: center; padding: 40px 24px; }
+    /* States */
+    .hidden { display: none; }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .loading.active { display: block; }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e4e4e7;
+      border-top-color: #18181b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
     .success-state.active { display: block; }
     .success-icon {
       width: 64px;
@@ -129,6 +164,7 @@
       justify-content: center;
       margin: 0 auto 16px;
       font-size: 32px;
+      color: #166534;
     }
     .success-state h2 {
       font-size: 20px;
@@ -138,25 +174,37 @@
     }
     .success-state p { font-size: 15px; color: #52525b; line-height: 1.6; }
 
-    /* Form state */
-    .form-state { display: block; }
-    .form-state.hidden { display: none; }
-
-    /* Loading */
-    .loading { display: none; }
-    .loading.active { display: inline-block; }
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #ffffff;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
+    .error-state {
+      display: none;
+      padding: 24px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-state.active { display: block; }
+    .error-badge {
+      display: inline-block;
+      background-color: #fef2f2;
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .error-title {
+      padding: 16px 0 0 0;
+    }
+    .error-title h1 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #18181b;
+    }
+    .error-title p {
+      margin: 0;
+      font-size: 14px;
+      color: #52525b;
+      line-height: 1.6;
+    }
   </style>
 </head>
 
@@ -164,8 +212,8 @@
   <div class="container">
     <div class="card">
 
-      <!-- Form State -->
-      <div id="form-state" class="form-state">
+      <!-- FORM STATE -->
+      <div id="form-state">
         <div class="card-header">
           <span class="badge">🔄 Re-Quote Required</span>
         </div>
@@ -177,7 +225,6 @@
 
         <div class="divider"><hr></div>
 
-        <!-- Denial Reason Box -->
         <div class="info-box">
           <div class="info-box-header">Original Denial Reason</div>
           <p id="denial-info">Loading denial information...</p>
@@ -226,19 +273,33 @@
           </div>
 
           <div class="card-footer">
-            <button type="submit" class="btn btn-primary" id="submit-btn">
-              <span class="btn-text">Submit New Quote</span>
-              <span class="loading"><span class="spinner"></span>Submitting...</span>
-            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Submit New Quote</button>
           </div>
         </form>
       </div>
 
-      <!-- Success State -->
+      <!-- LOADING STATE -->
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p style="font-size: 14px; color: #71717a;">Submitting your quote...</p>
+      </div>
+
+      <!-- SUCCESS STATE -->
       <div id="success-state" class="success-state">
         <div class="success-icon">✓</div>
         <h2>Quote Submitted</h2>
         <p>The owner will be notified of the new options. You'll receive an update once they respond.</p>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div id="error-state" class="error-state">
+        <div>
+          <span class="error-badge">Error</span>
+        </div>
+        <div class="error-title">
+          <h1>Something went wrong</h1>
+          <p id="error-message">We couldn't submit your quote. Please try again or contact us directly.</p>
+        </div>
       </div>
 
     </div>
@@ -248,29 +309,75 @@
     </div>
   </div>
 
+  <!-- Hidden iframe target for form POST (avoids CORS completely) -->
+  <iframe name="zapier_iframe" id="zapier_iframe" style="display:none;"></iframe>
+
   <script>
     // ---------- Helpers ----------
     function safeDecode(value) {
       try { return decodeURIComponent(value || ''); } catch (e) { return value || ''; }
     }
 
-    // Build x-www-form-urlencoded body
-    function toFormUrlEncoded(obj) {
-      const params = new URLSearchParams();
-      Object.entries(obj).forEach(([key, value]) => {
-        params.append(key, value == null ? '' : String(value));
-      });
-      return params.toString();
+    function showLoading() {
+      document.getElementById('form-state').classList.add('hidden');
+      document.getElementById('error-state').classList.remove('active');
+      document.getElementById('error-state').classList.add('hidden');
+      const loading = document.getElementById('loading');
+      loading.classList.add('active');
+      loading.classList.remove('hidden');
     }
 
-    // ---------- Read URL params ----------
+    function showSuccess() {
+      const loading = document.getElementById('loading');
+      loading.classList.remove('active');
+      loading.classList.add('hidden');
+      const success = document.getElementById('success-state');
+      success.classList.add('active');
+    }
+
+    function showError(message) {
+      const loading = document.getElementById('loading');
+      loading.classList.remove('active');
+      loading.classList.add('hidden');
+
+      const err = document.getElementById('error-state');
+      err.classList.remove('hidden');
+      err.classList.add('active');
+
+      if (message) {
+        document.getElementById('error-message').textContent = message;
+      }
+    }
+
+    function postToZapierUrlEncoded(url, data) {
+      // Create a temporary form and submit into hidden iframe
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = url;
+      form.target = 'zapier_iframe';
+      form.enctype = 'application/x-www-form-urlencoded';
+
+      Object.keys(data).forEach((key) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = data[key] == null ? '' : String(data[key]);
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
+
+    // ---------- URL params ----------
     const params = new URLSearchParams(window.location.search);
     const wo = params.get('wo') || '';
     const property = params.get('property') || '';
     const denialType = params.get('denial_type') || '';
     const denialReason = params.get('denial_reason') || '';
 
-    // ---------- Populate page ----------
+    // ---------- Populate UI ----------
     document.getElementById('wo-number').textContent = wo || 'Unknown';
     document.getElementById('property-name').textContent = safeDecode(property) || 'Unknown Property';
 
@@ -279,70 +386,65 @@
       'owner_fix': 'Owner will fix themselves',
       'wrong_scope': 'Wrong scope / Not needed',
       'other': 'Other'
-    }[denialType] || denialType || 'Not specified';
+    }[denialType] || (denialType || 'Not specified');
 
     const denialReasonText = safeDecode(denialReason) || 'No additional notes provided';
     document.getElementById('denial-info').innerHTML =
       `<strong>${denialTypeText}</strong><br>${denialReasonText}`;
 
-    // ---------- Form submission ----------
-    const form = document.getElementById('requote-form');
+    // ---------- Submit ----------
+    const requoteForm = document.getElementById('requote-form');
     const submitBtn = document.getElementById('submit-btn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const loading = submitBtn.querySelector('.loading');
 
     // REPLACE WITH YOUR ACTUAL WEBHOOK URL
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uq5ospo/';
 
-    form.addEventListener('submit', async function(e) {
+    requoteForm.addEventListener('submit', function(e) {
       e.preventDefault();
 
-      // UI: loading state
-      btnText.style.display = 'none';
-      loading.classList.add('active');
+      // Basic validation
+      const newApproach = document.getElementById('new-approach').value.trim();
+      const estimatedCost = document.getElementById('estimated-cost').value.trim();
+
+      if (!wo) {
+        showError('Missing work order number. Please use the link from your email.');
+        return;
+      }
+      if (!newApproach || !estimatedCost) {
+        showError('Please fill in required fields: Alternative Approach and Estimated Cost.');
+        return;
+      }
+
       submitBtn.disabled = true;
+      showLoading();
 
       const payload = {
         wo_number: wo,
-        property: safeDecode(property),
-        new_approach: document.getElementById('new-approach').value,
-        estimated_cost: document.getElementById('estimated-cost').value,
+        property: safeDecode(property || ''),
+        action: 'vendor_requote_submitted',
+        new_approach: newApproach,
+        estimated_cost: estimatedCost,
         new_odds: document.getElementById('new-odds').value,
-        additional_notes: document.getElementById('additional-notes').value,
-        original_denial_type: denialType,
-        original_denial_reason: safeDecode(denialReason),
-        timestamp: new Date().toISOString()
+        additional_notes: document.getElementById('additional-notes').value || '',
+        original_denial_type: denialType || '',
+        original_denial_reason: safeDecode(denialReason || ''),
+        timestamp: new Date().toISOString(),
+        source: 'requote_form'
       };
 
       try {
-        const body = toFormUrlEncoded(payload);
+        // Send POST in a way that bypasses CORS entirely
+        postToZapierUrlEncoded(WEBHOOK_URL, payload);
 
-        const res = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
-          body
-        });
-
-        // If Zapier returns a non-2xx, treat as error
-        if (!res.ok) {
-          throw new Error('Webhook failed with status ' + res.status);
-        }
-
-        // Success UI
-        document.getElementById('form-state').classList.add('hidden');
-        document.getElementById('success-state').classList.add('active');
+        // Like your example: show success without waiting for response
+        setTimeout(() => {
+          showSuccess();
+        }, 300);
 
       } catch (err) {
-        console.error(err);
-
-        // Roll back button state
-        btnText.style.display = '';
-        loading.classList.remove('active');
+        console.error('Zapier post error:', err);
         submitBtn.disabled = false;
-
-        alert('Could not submit the quote. Please try again, or contact support.');
+        showError('We could not submit your quote. Please try again or contact us directly.');
       }
     });
   </script>
