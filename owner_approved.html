@@ -80,17 +80,6 @@
     }
     .retry-btn:hover { background: #27272a; }
     .hidden { display: none; }
-    .debug {
-      margin-top: 18px;
-      font-size: 11px;
-      color: #a1a1aa;
-      line-height: 1.4;
-      word-break: break-all;
-      text-align: left;
-      background: #fafafa;
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
   </style>
 </head>
 
@@ -137,24 +126,19 @@
       <p class="error-message" id="errorMessage"></p>
       <button class="retry-btn" onclick="submitRequest()">Try Again</button>
     </div>
-
-    <div class="debug" id="debugBox"></div>
   </div>
-
-  <iframe name="zapier_iframe" id="zapier_iframe" style="display:none;"></iframe>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const wo = params.get('wo') || '';
     const property = params.get('property') || '';
     const token = params.get('token') || '';
-    const linkAction = params.get('action') || ''; // approve
-    const linkType = params.get('type') || '';     // requote
+    const linkAction = params.get('action') || '';
+    const linkType = params.get('type') || '';
 
-    // IMPORTANT: use your actual hook (the one that works)
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uqyfd8n/';
 
-    // --- Set defaults to match “Main form” ---
+    // Main-form defaults
     const APPROVED_BY_NAME = 'Andrey Afanasenko';
     const APPROVED_BY_EMAIL = 'andrei@alvarapm.com';
 
@@ -166,15 +150,6 @@
 
     document.getElementById('woNumber').textContent = wo || '(missing)';
     document.getElementById('propertyAddress').textContent = safeDecode(property || '');
-
-    document.getElementById('debugBox').textContent =
-      `Debug:\n` +
-      `wo=${wo}\n` +
-      `token=${token}\n` +
-      `property=${safeDecode(property)}\n` +
-      `link_action=${linkAction}\n` +
-      `link_type=${linkType}\n` +
-      `webhook=${WEBHOOK_URL}`;
 
     function safeDecode(v) {
       try { return decodeURIComponent(v || ''); } catch (e) { return v || ''; }
@@ -215,9 +190,8 @@
       }
       sessionStorage.setItem(dedupeKey, '1');
 
-      // ---- THIS is the unified payload (Main form has priority) ----
+      // Unified payload (Main form has priority)
       const unifiedPayload = {
-        // Main-form keys (priority)
         "Wo Id": wo,
         "property": safeDecode(property || ''),
         "Action": "approved",
@@ -226,7 +200,7 @@
         "Approved At": new Date().toISOString(),
         "querystring": window.location.search || '',
 
-        // Keep extra fields for audit/debug (optional but useful)
+        // Extra fields for audit/debug
         "token": token,
         "link_action": linkAction,
         "link_type": linkType,
@@ -234,7 +208,6 @@
       };
 
       try {
-        // Same pattern as your working page
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -244,9 +217,7 @@
         });
 
         showSuccess();
-
       } catch (error) {
-        // Even if fetch fails, show a helpful error (you can switch to "showSuccess()" if you want)
         showError(error.message || 'Request failed');
       }
     }
