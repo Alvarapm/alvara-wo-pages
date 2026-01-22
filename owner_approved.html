@@ -192,19 +192,19 @@
 
       // Unified payload (Main form has priority)
       const unifiedPayload = {
-        "Wo Id": wo,
-        "Property": safeDecode(property || ''),
-        "Action": "approved",
-        "Approved By": APPROVED_BY_NAME,
-        "Approved By Email": APPROVED_BY_EMAIL,
-        "Approved At": new Date().toISOString(),
-        "querystring": window.location.search || '',
+        woId: wo,
+        property: safeDecode(property || ''),
+        action: "approved",
+        approvedBy: APPROVED_BY_NAME,
+        approvedByEmail: APPROVED_BY_EMAIL,
+        approvedAt: new Date().toISOString(),
+        querystring: window.location.search || '',
 
         // Extra fields for audit/debug
-        "token": token,
-        "link_action": linkAction,
-        "link_type": linkType,
-        "source": "email_button"
+        token: token,
+        link_action: linkAction,
+        link_type: linkType,
+        source: "email_button"
       };
 
       try {
