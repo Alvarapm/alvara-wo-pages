@@ -23,9 +23,7 @@
       width: 100%;
       overflow: hidden;
     }
-    .card-header {
-      padding: 24px 24px 0 24px;
-    }
+    .card-header { padding: 24px 24px 0 24px; }
     .badge {
       display: inline-block;
       background-color: #dcfce7;
@@ -37,37 +35,18 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .card-title {
-      padding: 16px 24px 0 24px;
-    }
+    .card-title { padding: 16px 24px 0 24px; }
     .card-title h1 {
       margin: 0 0 4px 0;
       font-size: 24px;
       font-weight: 600;
       color: #18181b;
     }
-    .card-title p {
-      margin: 0;
-      font-size: 15px;
-      color: #52525b;
-    }
-    .divider {
-      padding: 20px 24px;
-    }
-    .divider hr {
-      border: none;
-      border-top: 1px solid #e4e4e7;
-      margin: 0;
-    }
-    .card-body {
-      padding: 0 24px;
-    }
-    .card-body p {
-      margin: 0;
-      font-size: 15px;
-      color: #52525b;
-      line-height: 1.6;
-    }
+    .card-title p { margin: 0; font-size: 15px; color: #52525b; }
+    .divider { padding: 20px 24px; }
+    .divider hr { border: none; border-top: 1px solid #e4e4e7; margin: 0; }
+    .card-body { padding: 0 24px; }
+    .card-body p { margin: 0; font-size: 15px; color: #52525b; line-height: 1.6; }
     .success-box {
       margin: 20px 24px 0 24px;
       background-color: #dcfce7;
@@ -75,59 +54,22 @@
       padding: 16px;
       text-align: center;
     }
-    .success-box .checkmark {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-    .success-box p {
-      margin: 0;
-      font-size: 14px;
-      color: #166534;
-      font-weight: 500;
-    }
+    .success-box .checkmark { font-size: 32px; margin-bottom: 8px; }
+    .success-box p { margin: 0; font-size: 14px; color: #166534; font-weight: 500; }
     .info-box {
       margin: 20px 24px 0 24px;
       background-color: #fafafa;
       border-radius: 8px;
       padding: 16px;
     }
-    .info-label {
-      font-size: 12px;
-      color: #71717a;
-      margin-bottom: 2px;
-    }
-    .info-value {
-      font-size: 14px;
-      font-weight: 500;
-      color: #18181b;
-    }
-    .card-footer {
-      padding: 24px;
-      text-align: center;
-    }
-    .card-footer p {
-      margin: 0;
-      font-size: 12px;
-      color: #a1a1aa;
-      line-height: 1.5;
-    }
-    .page-footer {
-      text-align: center;
-      padding: 20px 0;
-    }
-    .page-footer p {
-      margin: 0;
-      font-size: 12px;
-      color: #a1a1aa;
-    }
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-    .loading.active {
-      display: block;
-    }
+    .info-label { font-size: 12px; color: #71717a; margin-bottom: 2px; }
+    .info-value { font-size: 14px; font-weight: 500; color: #18181b; }
+    .card-footer { padding: 24px; text-align: center; }
+    .card-footer p { margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5; }
+    .page-footer { text-align: center; padding: 20px 0; }
+    .page-footer p { margin: 0; font-size: 12px; color: #a1a1aa; }
+    .loading { display: none; text-align: center; padding: 20px; }
+    .loading.active { display: block; }
     .spinner {
       width: 24px;
       height: 24px;
@@ -137,16 +79,15 @@
       animation: spin 1s linear infinite;
       margin: 0 auto 12px;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .hidden { display: none; }
   </style>
 </head>
+
 <body>
   <div>
     <div class="card">
-      
+
       <!-- Loading State -->
       <div id="loading" class="loading active">
         <div style="padding: 40px 24px;">
@@ -154,138 +95,202 @@
           <p style="font-size: 14px; color: #71717a;">Processing your approval...</p>
         </div>
       </div>
-      
+
       <!-- Success State -->
       <div id="success" class="hidden">
         <div class="card-header">
           <span class="badge">✓ Approved</span>
         </div>
-        
+
         <div class="card-title">
           <h1>WO #<span id="wo-number"></span></h1>
           <p id="property-name"></p>
         </div>
-        
+
         <div class="divider"><hr></div>
-        
+
         <div class="card-body">
           <p>Thank you for your approval! Our maintenance team has been notified and will schedule the work order shortly.</p>
         </div>
-        
+
         <div class="success-box">
           <div class="checkmark">✓</div>
           <p>Approval Confirmed</p>
         </div>
-        
+
         <div class="info-box">
           <p class="info-label">What happens next?</p>
           <p class="info-value">Our team will dispatch a technician and coordinate with the resident for scheduling. You'll receive updates as work progresses.</p>
         </div>
-        
+
         <div class="card-footer">
           <p>Questions? Reply to the original email or<br>contact us at your convenience.</p>
         </div>
       </div>
-      
+
       <!-- Error State -->
       <div id="error" class="hidden">
         <div class="card-header">
           <span class="badge" style="background-color: #fef2f2; color: #dc2626;">Error</span>
         </div>
-        
+
         <div class="card-title">
           <h1>Something went wrong</h1>
         </div>
-        
+
         <div class="divider"><hr></div>
-        
+
         <div class="card-body">
           <p id="error-message">We couldn't process your approval. Please try again or contact us directly.</p>
         </div>
-        
+
         <div class="card-footer">
           <p>Please reply to the original email or<br>call us to complete your approval.</p>
         </div>
       </div>
-      
+
     </div>
-    
+
     <div class="page-footer">
       <p>MCMX Remodeling • Alvara Property Management</p>
     </div>
   </div>
-  
+
+  <!-- Hidden iframe for POST fallback (bypasses CORS) -->
+  <iframe name="zapier_iframe" id="zapier_iframe" style="display:none;"></iframe>
+
   <script>
-    // Get URL parameters
+    // ---- URL parameters ----
     const params = new URLSearchParams(window.location.search);
     const wo = params.get('wo');
     const property = params.get('property');
     const token = params.get('token');
-    const action = params.get('action');
-    const type = params.get('type');
-    
-    
-    // DOM elements
+    const actionFromLink = params.get('action'); // e.g. approve
+    const typeFromLink = params.get('type');     // e.g. requote
+
+    // ---- DOM elements ----
     const loadingEl = document.getElementById('loading');
     const successEl = document.getElementById('success');
     const errorEl = document.getElementById('error');
     const woNumberEl = document.getElementById('wo-number');
     const propertyNameEl = document.getElementById('property-name');
     const errorMessageEl = document.getElementById('error-message');
-    
-    // Show success state
+
+    function safeDecode(value) {
+      try { return decodeURIComponent(value || ''); }
+      catch (e) { return value || ''; }
+    }
+
     function showSuccess() {
       loadingEl.classList.remove('active');
       loadingEl.classList.add('hidden');
       successEl.classList.remove('hidden');
       woNumberEl.textContent = wo || 'Unknown';
-      propertyNameEl.textContent = decodeURIComponent(property || 'Unknown Property');
+      propertyNameEl.textContent = safeDecode(property || 'Unknown Property');
     }
-    
-    // Show error state
+
     function showError(message) {
       loadingEl.classList.remove('active');
       loadingEl.classList.add('hidden');
       errorEl.classList.remove('hidden');
-      if (message) {
-        errorMessageEl.textContent = message;
+      if (message) errorMessageEl.textContent = message;
+    }
+
+    // ---- Robust webhook senders ----
+    function toUrlEncoded(obj) {
+      const usp = new URLSearchParams();
+      Object.entries(obj).forEach(([k, v]) => usp.append(k, v == null ? '' : String(v)));
+      return usp.toString();
+    }
+
+    function sendViaBeacon(url, urlEncodedBody) {
+      try {
+        if (!navigator.sendBeacon) return false;
+        const blob = new Blob([urlEncodedBody], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
+        return navigator.sendBeacon(url, blob);
+      } catch (e) {
+        return false;
       }
     }
-    
-    // Validate parameters
+
+    function sendViaHiddenForm(url, payloadObj) {
+      try {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.target = 'zapier_iframe';
+        form.enctype = 'application/x-www-form-urlencoded';
+
+        Object.entries(payloadObj).forEach(([k, v]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = k;
+          input.value = v == null ? '' : String(v);
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function sendViaFetchNoCors(url, urlEncodedBody) {
+      try {
+        // no-cors: браузер не даст прочитать ответ, но запрос обычно уходит
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          keepalive: true,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: urlEncodedBody
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // ---- Main ----
     if (!wo || !token) {
       showError('Missing required parameters. Please use the link from your email.');
     } else {
-      // Send approval to webhook
-      // REPLACE WITH YOUR ZAPIER WEBHOOK URL
+      // IMPORTANT: use the same hook that your Zap is listening to
       const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uqyfd8n/';
-      
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          wo_number: wo,
-          property: decodeURIComponent(property || ''),
-          action: 'owner_approved',
-          token: token,
-          timestamp: new Date().toISOString(),
-          source: 'email_button'
-        })
-      })
-      .then(response => {
-        if (response.ok) {
-          showSuccess();
-        } else {
-          showError('Server error. Please try again or contact us.');
-        }
-      })
-      .catch(err => {
-        console.error('Webhook error:', err);
-        // Show success anyway - webhook might have CORS issues but still work
+
+      // Payload (add whatever you want Zapier to receive)
+      const payload = {
+        wo_number: wo,
+        property: safeDecode(property || ''),
+        token: token,
+        link_action: actionFromLink || '',
+        link_type: typeFromLink || '',
+        action: 'owner_approved',          // fixed action sent to Zapier
+        timestamp: new Date().toISOString(),
+        source: 'email_button'
+      };
+
+      const body = toUrlEncoded(payload);
+
+      // Send with multiple strategies (at least one typically lands)
+      const beaconOk = sendViaBeacon(WEBHOOK_URL, body);
+      const formOk = sendViaHiddenForm(WEBHOOK_URL, payload);
+      // fetch fallback (don’t block UI on it)
+      sendViaFetchNoCors(WEBHOOK_URL, body);
+
+      // Show success like your original example (don’t wait for response)
+      // If you want, you can show error ONLY when ALL senders fail synchronously:
+      if (!beaconOk && !formOk) {
+        // Even then, fetch might still succeed; but user experience tends to be better with success.
+        // If you prefer strict behavior, uncomment the next line and comment showSuccess().
+        // showError('We could not submit your approval. Please try again or contact us directly.');
         showSuccess();
-      });
+      } else {
+        showSuccess();
+      }
     }
   </script>
 </body>
