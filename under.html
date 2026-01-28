@@ -78,19 +78,65 @@
       background: #fef3c7;
       color: #92400e;
     }
-    .next-step {
+    .next-steps {
       margin-top: 24px;
       padding: 16px;
       background: #f4f4f5;
       border-radius: 8px;
+      text-align: left;
+    }
+    .next-steps-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
       font-size: 14px;
       color: #52525b;
     }
-    .next-step strong {
+    .step-item:last-child {
+      margin-bottom: 0;
+    }
+    .step-num {
+      width: 20px;
+      height: 20px;
+      background: #18181b;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .step-item strong {
       color: #18181b;
     }
-    .close-hint {
+    .pipeline-btn {
+      display: inline-block;
       margin-top: 20px;
+      padding: 12px 24px;
+      background: #18181b;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .pipeline-btn:hover {
+      background: #27272a;
+    }
+    .close-hint {
+      margin-top: 16px;
       font-size: 13px;
       color: #a1a1aa;
     }
@@ -129,10 +175,27 @@
       <h1>Review Submitted!</h1>
       <p class="wo-number">WO #<span id="woNumberUnder"></span></p>
       <span class="status-badge under">Under $500 — Pending Schedule</span>
-      <div class="next-step">
-        <strong>Next:</strong> Add appointment date, time & tech in the pipeline, then set to "Dispatch Ready"
+      <div class="next-steps">
+        <p class="next-steps-title">Next Steps</p>
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <span>Check the <strong>"Send to Zap"</strong> checkbox in the pipeline</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <span>Add appointment <strong>date, time & tech</strong></span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <span>Set status to <strong>"Dispatch Ready"</strong></span>
+        </div>
       </div>
-      <p class="close-hint">You can close this tab</p>
+      <a href="https://docs.google.com/spreadsheets/d/19PFw1QHyK_T-yHjltJZgp8VF1b2-laUK0up7n9qViMY/edit?pli=1&gid=479033639#gid=479033639" 
+         target="_blank" 
+         class="pipeline-btn">
+        📋 Open Pipeline
+      </a>
+      <p class="close-hint">or close this tab</p>
     </div>
     
     <!-- Success State (Over $500) -->
@@ -141,10 +204,27 @@
       <h1>Flagged for Approval</h1>
       <p class="wo-number">WO #<span id="woNumberOver"></span></p>
       <span class="status-badge over">Over $500 — Bree Notified</span>
-      <div class="next-step">
-        <strong>Next:</strong> Bree will contact the owner for approval. You'll be notified when it's ready to schedule.
+      <div class="next-steps">
+        <p class="next-steps-title">Next Steps</p>
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <span>Check the <strong>"Send to Zap"</strong> checkbox in the pipeline</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <span>Bree will contact the owner for approval</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <span>You'll be notified when ready to schedule</span>
+        </div>
       </div>
-      <p class="close-hint">You can close this tab</p>
+      <a href="https://docs.google.com/spreadsheets/d/19PFw1QHyK_T-yHjltJZgp8VF1b2-laUK0up7n9qViMY/edit?pli=1&gid=479033639#gid=479033639" 
+         target="_blank" 
+         class="pipeline-btn">
+        📋 Open Pipeline
+      </a>
+      <p class="close-hint">or close this tab</p>
     </div>
     
     <!-- Error State -->
@@ -163,7 +243,7 @@
     const status = params.get('status') || '';
     const limit = params.get('limit') || '500';
     
-    // Your Zapier webhook URL - REPLACE THIS
+    // Your Zapier webhook URL
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/ug7kuyl/';
     
     // Update WO numbers in UI
@@ -179,10 +259,10 @@
       
       try {
         // Send to Zapier webhook
-        const response = await fetch(WEBHOOK_URL, {
+        await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          mode: 'no-cors', // Zapier webhooks don't support CORS
+          mode: 'no-cors',
           body: JSON.stringify({
             wo: wo,
             status: status,
