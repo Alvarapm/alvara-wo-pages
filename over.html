@@ -126,11 +126,27 @@
     textarea::placeholder {
       color: #a1a1aa;
     }
+    .textarea-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .visibility-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #f59e0b;
+      font-weight: 500;
+    }
+    .visibility-note svg {
+      width: 14px;
+      height: 14px;
+    }
     .char-count {
-      text-align: right;
       font-size: 12px;
       color: #a1a1aa;
-      margin-top: 4px;
     }
     /* Button */
     button[type="submit"] {
@@ -242,7 +258,16 @@
             minlength="20"
             maxlength="500"
           ></textarea>
-          <p class="char-count"><span id="charCount">0</span>/500</p>
+          <div class="textarea-footer">
+            <span class="visibility-note">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+                <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+              </svg>
+              Shared with owner in approval email
+            </span>
+            <span class="char-count"><span id="charCount">0</span>/500</span>
+          </div>
         </div>
         
         <button type="submit" id="submitBtn">
