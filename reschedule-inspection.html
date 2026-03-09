@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reschedule Inspection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 24px;
+      border-bottom: 1px solid #fcd34d;
+    }
+    .badge {
+      display: inline-block;
+      background: #92400e;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #78350f;
+      margin-bottom: 4px;
+    }
+    .header .property {
+      font-size: 14px;
+      color: #92400e;
+    }
+    .body {
+      padding: 24px;
+    }
+    .current-appointment {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .current-label {
+      font-size: 12px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .current-time {
+      font-size: 16px;
+      font-weight: 600;
+      color: #18181b;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #18181b;
+      margin: 20px 0 12px 0;
+    }
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #71717a;
+    }
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e4e4e7;
+      border-top-color: #18181b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Day groups */
+    .day-group {
+      margin-bottom: 16px;
+    }
+    .day-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #52525b;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .slot-option {
+      position: relative;
+    }
+    .slot-option input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 1;
+    }
+    .slot-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      background: #f4f4f5;
+      border: 2px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #52525b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .slot-option input:checked + label {
+      background: #18181b;
+      border-color: #18181b;
+      color: white;
+    }
+    .slot-option label:hover {
+      border-color: #a1a1aa;
+    }
+    /* No slots */
+    .no-slots {
+      text-align: center;
+      padding: 32px 20px;
+      color: #71717a;
+    }
+    .no-slots-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    /* Too late message */
+    .too-late {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .too-late-icon {
+      width: 72px;
+      height: 72px;
+      background: #fef2f2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .too-late h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .too-late p {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.5;
+    }
+    .contact-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    /* Button */
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px 24px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 20px;
+    }
+    button[type="submit"]:hover {
+      background: #27272a;
+    }
+    button[type="submit"]:disabled {
+      background: #a1a1aa;
+      cursor: not-allowed;
+    }
+    /* Success state */
+    .success-state {
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .success-state h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .success-state p {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.5;
+    }
+    .success-state .summary {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0fdf4;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .success-state .summary p {
+      font-size: 14px;
+      color: #166534;
+      margin-bottom: 4px;
+    }
+    .success-state .summary p:last-child {
+      margin-bottom: 0;
+    }
+    .close-hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    /* Error state */
+    .error-state {
+      text-align: center;
+      padding: 32px 20px;
+      color: #dc2626;
+    }
+    .error-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .retry-btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Too Late View (shown if < 24h before appointment) -->
+    <div id="tooLateView" class="too-late hidden">
+      <div class="too-late-icon">⏰</div>
+      <h2>Reschedule Not Available</h2>
+      <p>Your appointment is less than 24 hours away and can no longer be rescheduled online.</p>
+      <p style="margin-top: 12px;">Please call us to make changes:</p>
+      <a href="tel:3132218940" class="contact-link">(313) 221-8940</a>
+    </div>
+    
+    <!-- Form View -->
+    <div id="formView">
+      <div class="header">
+        <span class="badge">Reschedule</span>
+        <h1>Change Your Appointment</h1>
+        <p class="property" id="propertyAddress"></p>
+      </div>
+      
+      <div class="body">
+        <!-- Current Appointment -->
+        <div class="current-appointment">
+          <p class="current-label">Current Appointment</p>
+          <p class="current-time" id="currentTime"></p>
+        </div>
+        
+        <p class="section-title">Select New Time</p>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading available times...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="errorState" class="error-state hidden">
+          <div class="error-icon">⚠️</div>
+          <p>Couldn't load available times</p>
+          <button class="retry-btn" onclick="loadSlots()">Try Again</button>
+        </div>
+        
+        <!-- No Slots State -->
+        <div id="noSlotsState" class="no-slots hidden">
+          <div class="no-slots-icon">📅</div>
+          <p>No available times right now.<br>Please call us to reschedule.</p>
+          <a href="tel:3132218940" class="contact-link">(313) 221-8940</a>
+        </div>
+        
+        <!-- Slots Form -->
+        <form id="rescheduleForm" class="hidden">
+          <div id="slotsContainer"></div>
+          <button type="submit" id="submitBtn" disabled>
+            Confirm New Time
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success View -->
+    <div id="successView" class="success-state hidden">
+      <div class="success-icon">✓</div>
+      <h2>Rescheduled!</h2>
+      <p>Your new appointment is confirmed</p>
+      <div class="summary">
+        <p><strong>New Date:</strong> <span id="successDate"></span></p>
+        <p><strong>New Time:</strong> <span id="successTime"></span></p>
+      </div>
+      <p class="close-hint">You'll receive a confirmation email shortly.<br>You can close this tab.</p>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const jobId = params.get('job_id') || '';
+    const property = decodeURIComponent(params.get('property') || '');
+    const startTime = decodeURIComponent(params.get('start_time') || '');
+    const tenantName = decodeURIComponent(params.get('tenant_name') || '');
+    
+    // API URLs
+    const SLOTS_API = 'https://alvara-lovat.vercel.app/api/booking-windows';
+    const RESCHEDULE_API = 'https://alvara-lovat.vercel.app/api/reschedule-inspection';
+    
+    // Populate UI
+    document.getElementById('propertyAddress').textContent = property;
+    
+    // Format current appointment time
+    if (startTime) {
+      const currentDate = new Date(startTime);
+      const displayDate = currentDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'America/Detroit'
+      });
+      const displayTime = currentDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'America/Detroit'
+      });
+      document.getElementById('currentTime').textContent = `${displayDate} at ${displayTime}`;
+    }
+    
+    // Check if within 24 hours
+    function isWithin24Hours() {
+      if (!startTime) return false;
+      const appointmentDate = new Date(startTime);
+      const now = new Date();
+      const hoursUntil = (appointmentDate - now) / (1000 * 60 * 60);
+      return hoursUntil < 24;
+    }
+    
+    // Selected slot data
+    let selectedSlot = null;
+    
+    // Load available slots
+    async function loadSlots() {
+      const loadingState = document.getElementById('loadingState');
+      const errorState = document.getElementById('errorState');
+      const noSlotsState = document.getElementById('noSlotsState');
+      const rescheduleForm = document.getElementById('rescheduleForm');
+      const slotsContainer = document.getElementById('slotsContainer');
+      
+      // Show loading
+      loadingState.classList.remove('hidden');
+      errorState.classList.add('hidden');
+      noSlotsState.classList.add('hidden');
+      rescheduleForm.classList.add('hidden');
+      
+      try {
+        const response = await fetch(SLOTS_API);
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (!data.success) {
+          errorState.classList.remove('hidden');
+          return;
+        }
+        
+        if (!data.days || data.days.length === 0) {
+          noSlotsState.classList.remove('hidden');
+          return;
+        }
+        
+        // Render slots
+        slotsContainer.innerHTML = '';
+        
+        data.days.forEach((day, dayIndex) => {
+          const dayGroup = document.createElement('div');
+          dayGroup.className = 'day-group';
+          
+          const dayLabel = document.createElement('div');
+          dayLabel.className = 'day-label';
+          dayLabel.textContent = day.display_date;
+          dayGroup.appendChild(dayLabel);
+          
+          const slotsGrid = document.createElement('div');
+          slotsGrid.className = 'slots-grid';
+          
+          day.slots.forEach((slot, slotIndex) => {
+            const slotId = `slot_${dayIndex}_${slotIndex}`;
+            
+            const slotOption = document.createElement('div');
+            slotOption.className = 'slot-option';
+            
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.id = slotId;
+            input.name = 'slot';
+            input.value = JSON.stringify({
+              start_time: slot.start_time,
+              end_time: slot.end_time,
+              display_date: day.display_date,
+              display_time: slot.display_time
+            });
+            input.addEventListener('change', (e) => {
+              selectedSlot = JSON.parse(e.target.value);
+              document.getElementById('submitBtn').disabled = false;
+            });
+            
+            const label = document.createElement('label');
+            label.htmlFor = slotId;
+            label.textContent = slot.display_time;
+            
+            slotOption.appendChild(input);
+            slotOption.appendChild(label);
+            slotsGrid.appendChild(slotOption);
+          });
+          
+          dayGroup.appendChild(slotsGrid);
+          slotsContainer.appendChild(dayGroup);
+        });
+        
+        rescheduleForm.classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Error loading slots:', error);
+        loadingState.classList.add('hidden');
+        errorState.classList.remove('hidden');
+      }
+    }
+    
+    // Form submission
+    document.getElementById('rescheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!selectedSlot || !jobId) return;
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Rescheduling...';
+      
+      const data = {
+        job_id: jobId,
+        start_time: selectedSlot.start_time
+      };
+      
+      try {
+        const response = await fetch(RESCHEDULE_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Reschedule failed');
+        }
+        
+        // Show success with new schedule
+        document.getElementById('successDate').textContent = result.schedule.display_date;
+        document.getElementById('successTime').textContent = 
+          result.schedule.display_start_time + ' – ' + result.schedule.display_end_time;
+        document.getElementById('formView').classList.add('hidden');
+        document.getElementById('successView').classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Error rescheduling:', error);
+        btn.disabled = false;
+        btn.textContent = 'Confirm New Time';
+        alert('Error rescheduling: ' + error.message);
+      }
+    });
+    
+    // Initialize
+    if (isWithin24Hours()) {
+      // Show "too late" message
+      document.getElementById('formView').classList.add('hidden');
+      document.getElementById('tooLateView').classList.remove('hidden');
+    } else {
+      // Load available slots
+      loadSlots();
+    }
+  </script>
+</body>
+</html>
