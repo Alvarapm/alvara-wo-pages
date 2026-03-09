@@ -326,7 +326,7 @@
     
     // API URLs
     const SLOTS_API = 'https://alvara-lovat.vercel.app/api/booking-windows';
-    const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxmmhis/';
+    const BOOK_API = 'https://alvara-lovat.vercel.app/api/book-inspection';
     
     // Populate UI
     document.getElementById('propertyAddress').textContent = property;
@@ -441,24 +441,26 @@
         price: parseInt(price),
         tenant_name: tenantName,
         tenant_email: tenantEmail,
-        selected_date: selectedSlot.display_date,
-        selected_time: selectedSlot.display_time,
-        start_time: selectedSlot.start_time,
-        end_time: selectedSlot.end_time,
-        timestamp: new Date().toISOString()
+        start_time: selectedSlot.start_time
       };
       
       try {
-        await fetch(WEBHOOK_URL, {
+        const response = await fetch(BOOK_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          mode: 'no-cors',
           body: JSON.stringify(data)
         });
         
-        // Show success
-        document.getElementById('successDate').textContent = selectedSlot.display_date;
-        document.getElementById('successTime').textContent = selectedSlot.display_time;
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Booking failed');
+        }
+        
+        // Show success with job details
+        document.getElementById('successDate').textContent = result.schedule.display_date;
+        document.getElementById('successTime').textContent = 
+          result.schedule.display_start_time + ' – ' + result.schedule.display_end_time;
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
         
@@ -466,7 +468,7 @@
         console.error('Error submitting:', error);
         btn.disabled = false;
         btn.textContent = 'Confirm Appointment';
-        alert('Error scheduling. Please try again.');
+        alert('Error scheduling: ' + error.message);
       }
     });
     
