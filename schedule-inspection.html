@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Inspection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f4f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      padding: 24px;
+      border-bottom: 1px solid #93c5fd;
+    }
+    .badge {
+      display: inline-block;
+      background: #1e40af;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+    .header .property {
+      font-size: 14px;
+      color: #1e40af;
+    }
+    .body {
+      padding: 24px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f4f4f5;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-size: 14px;
+      color: #71717a;
+    }
+    .info-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #18181b;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #18181b;
+      margin: 20px 0 12px 0;
+    }
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #71717a;
+    }
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e4e4e7;
+      border-top-color: #18181b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Day groups */
+    .day-group {
+      margin-bottom: 16px;
+    }
+    .day-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #52525b;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .slot-option {
+      position: relative;
+    }
+    .slot-option input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 1;
+    }
+    .slot-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      background: #f4f4f5;
+      border: 2px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #52525b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .slot-option input:checked + label {
+      background: #18181b;
+      border-color: #18181b;
+      color: white;
+    }
+    .slot-option label:hover {
+      border-color: #a1a1aa;
+    }
+    /* No slots */
+    .no-slots {
+      text-align: center;
+      padding: 32px 20px;
+      color: #71717a;
+    }
+    .no-slots-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    /* Button */
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px 24px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 20px;
+    }
+    button[type="submit"]:hover {
+      background: #27272a;
+    }
+    button[type="submit"]:disabled {
+      background: #a1a1aa;
+      cursor: not-allowed;
+    }
+    /* Success state */
+    .success-state {
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    .success-state h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #18181b;
+      margin-bottom: 8px;
+    }
+    .success-state p {
+      font-size: 15px;
+      color: #52525b;
+      line-height: 1.5;
+    }
+    .success-state .summary {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0fdf4;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .success-state .summary p {
+      font-size: 14px;
+      color: #166534;
+      margin-bottom: 4px;
+    }
+    .success-state .summary p:last-child {
+      margin-bottom: 0;
+    }
+    .close-hint {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    /* Error state */
+    .error-state {
+      text-align: center;
+      padding: 32px 20px;
+      color: #dc2626;
+    }
+    .error-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .retry-btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #18181b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Form View -->
+    <div id="formView">
+      <div class="header">
+        <span class="badge">Onboarding Inspection</span>
+        <h1>Schedule Your Inspection</h1>
+        <p class="property" id="propertyAddress"></p>
+      </div>
+      
+      <div class="body">
+        <!-- Info Summary -->
+        <div class="info-row">
+          <span class="info-label">Duration</span>
+          <span class="info-value">~3 hours</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Units</span>
+          <span class="info-value" id="unitsDisplay"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Inspection Fee</span>
+          <span class="info-value" id="priceDisplay"></span>
+        </div>
+        
+        <p class="section-title">Select a Time</p>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading available times...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="errorState" class="error-state hidden">
+          <div class="error-icon">⚠️</div>
+          <p>Couldn't load available times</p>
+          <button class="retry-btn" onclick="loadSlots()">Try Again</button>
+        </div>
+        
+        <!-- No Slots State -->
+        <div id="noSlotsState" class="no-slots hidden">
+          <div class="no-slots-icon">📅</div>
+          <p>No available times right now.<br>Please call us to schedule.</p>
+        </div>
+        
+        <!-- Slots Form -->
+        <form id="scheduleForm" class="hidden">
+          <div id="slotsContainer"></div>
+          <button type="submit" id="submitBtn" disabled>
+            Confirm Appointment
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success View -->
+    <div id="successView" class="success-state hidden">
+      <div class="success-icon">✓</div>
+      <h2>You're Scheduled!</h2>
+      <p>We'll see you at <span id="successProperty"></span></p>
+      <div class="summary">
+        <p><strong>Date:</strong> <span id="successDate"></span></p>
+        <p><strong>Time:</strong> <span id="successTime"></span></p>
+        <p><strong>Duration:</strong> ~3 hours</p>
+      </div>
+      <p class="close-hint">You'll receive a confirmation email shortly.<br>You can close this tab.</p>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const property = decodeURIComponent(params.get('property') || '');
+    const units = params.get('units') || '1';
+    const price = params.get('price') || '0';
+    const tenantName = decodeURIComponent(params.get('tenant_name') || '');
+    const tenantEmail = decodeURIComponent(params.get('tenant_email') || '');
+    
+    // API URLs
+    const SLOTS_API = 'https://alvara-lovat.vercel.app/api/booking-windows';
+    const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxmmhis/';
+    
+    // Populate UI
+    document.getElementById('propertyAddress').textContent = property;
+    document.getElementById('unitsDisplay').textContent = units;
+    document.getElementById('priceDisplay').textContent = '$' + price;
+    document.getElementById('successProperty').textContent = property;
+    
+    // Selected slot data
+    let selectedSlot = null;
+    
+    // Load available slots
+    async function loadSlots() {
+      const loadingState = document.getElementById('loadingState');
+      const errorState = document.getElementById('errorState');
+      const noSlotsState = document.getElementById('noSlotsState');
+      const scheduleForm = document.getElementById('scheduleForm');
+      const slotsContainer = document.getElementById('slotsContainer');
+      
+      // Show loading
+      loadingState.classList.remove('hidden');
+      errorState.classList.add('hidden');
+      noSlotsState.classList.add('hidden');
+      scheduleForm.classList.add('hidden');
+      
+      try {
+        const response = await fetch(SLOTS_API);
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (!data.success) {
+          errorState.classList.remove('hidden');
+          return;
+        }
+        
+        if (!data.days || data.days.length === 0) {
+          noSlotsState.classList.remove('hidden');
+          return;
+        }
+        
+        // Render slots
+        slotsContainer.innerHTML = '';
+        
+        data.days.forEach((day, dayIndex) => {
+          const dayGroup = document.createElement('div');
+          dayGroup.className = 'day-group';
+          
+          const dayLabel = document.createElement('div');
+          dayLabel.className = 'day-label';
+          dayLabel.textContent = day.display_date;
+          dayGroup.appendChild(dayLabel);
+          
+          const slotsGrid = document.createElement('div');
+          slotsGrid.className = 'slots-grid';
+          
+          day.slots.forEach((slot, slotIndex) => {
+            const slotId = `slot_${dayIndex}_${slotIndex}`;
+            
+            const slotOption = document.createElement('div');
+            slotOption.className = 'slot-option';
+            
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.id = slotId;
+            input.name = 'slot';
+            input.value = JSON.stringify({
+              start_time: slot.start_time,
+              end_time: slot.end_time,
+              display_date: day.display_date,
+              display_time: slot.display_time
+            });
+            input.addEventListener('change', (e) => {
+              selectedSlot = JSON.parse(e.target.value);
+              document.getElementById('submitBtn').disabled = false;
+            });
+            
+            const label = document.createElement('label');
+            label.htmlFor = slotId;
+            label.textContent = slot.display_time;
+            
+            slotOption.appendChild(input);
+            slotOption.appendChild(label);
+            slotsGrid.appendChild(slotOption);
+          });
+          
+          dayGroup.appendChild(slotsGrid);
+          slotsContainer.appendChild(dayGroup);
+        });
+        
+        scheduleForm.classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Error loading slots:', error);
+        loadingState.classList.add('hidden');
+        errorState.classList.remove('hidden');
+      }
+    }
+    
+    // Form submission
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!selectedSlot) return;
+      
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Scheduling...';
+      
+      const data = {
+        property: property,
+        units: parseInt(units),
+        price: parseInt(price),
+        tenant_name: tenantName,
+        tenant_email: tenantEmail,
+        selected_date: selectedSlot.display_date,
+        selected_time: selectedSlot.display_time,
+        start_time: selectedSlot.start_time,
+        end_time: selectedSlot.end_time,
+        timestamp: new Date().toISOString()
+      };
+      
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify(data)
+        });
+        
+        // Show success
+        document.getElementById('successDate').textContent = selectedSlot.display_date;
+        document.getElementById('successTime').textContent = selectedSlot.display_time;
+        document.getElementById('formView').classList.add('hidden');
+        document.getElementById('successView').classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Error submitting:', error);
+        btn.disabled = false;
+        btn.textContent = 'Confirm Appointment';
+        alert('Error scheduling. Please try again.');
+      }
+    });
+    
+    // Load slots on page load
+    loadSlots();
+  </script>
+</body>
+</html>
