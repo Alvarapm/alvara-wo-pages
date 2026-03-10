@@ -342,7 +342,7 @@
     const tenantEmail = decodeURIComponent(params.get('tenant_email') || '');
     
     // Webhook URL for availability submission
-    const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxmmhis/';
+    const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxxavai/';
     
     // Populate property address
     document.getElementById('propertyAddress').textContent = property;
@@ -440,12 +440,14 @@
       };
       
       try {
-        const response = await fetch(WEBHOOK_URL, {
+        await fetch(WEBHOOK_URL, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         
+        // With no-cors we can't check response, but data is sent
         // Show success
         document.getElementById('successDates').textContent = displayDates.join(', ');
         document.getElementById('successTimes').textContent = selectedTimes.join(' or ');
@@ -456,7 +458,7 @@
         console.error('Error submitting:', error);
         btn.disabled = false;
         btn.textContent = 'Submit Availability';
-        alert('Error submitting. Please try again or call us at (313) 221-8940.');
+        alert('Error submitting. Please try again or call us at (313) 254-5775.');
       }
     });
     
