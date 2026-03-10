@@ -429,22 +429,22 @@
         return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       });
       
-      const payload = {
-        tenant_email: tenantEmail,
-        tenant_name: tenantName,
-        property_address: property,
-        units: units,
-        available_dates: selectedDates.join(', '),
-        preferred_times: selectedTimes.join(', '),
-        submitted_at: new Date().toISOString()
-      };
+      // Build form data (works with no-cors)
+      const formData = new URLSearchParams();
+      formData.append('tenant_email', tenantEmail);
+      formData.append('tenant_name', tenantName);
+      formData.append('property_address', property);
+      formData.append('units', units);
+      formData.append('available_dates', selectedDates.join(', '));
+      formData.append('preferred_times', selectedTimes.join(', '));
+      formData.append('submitted_at', new Date().toISOString());
       
       try {
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString()
         });
         
         // With no-cors we can't check response, but data is sent
