@@ -340,6 +340,8 @@
     const units = params.get('units') || '1';
     const tenantName = decodeURIComponent(params.get('tenant_name') || '');
     const tenantEmail = decodeURIComponent(params.get('tenant_email') || '');
+    const tenantPhone = decodeURIComponent(params.get('tenant_phone') || '');  // v4.3
+    const unitPropertyId = params.get('unit_property_id') || '';  // v4.3: Rentvine property ID passthrough
     
     // Webhook URL for availability submission
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxmmhis/';
@@ -433,8 +435,10 @@
       const formData = new URLSearchParams();
       formData.append('tenant_email', tenantEmail);
       formData.append('tenant_name', tenantName);
+      formData.append('tenant_phone', tenantPhone);  // v4.3
       formData.append('property_address', property);
       formData.append('units', units);
+      formData.append('unit_property_id', unitPropertyId);  // v4.3: Rentvine property ID passthrough
       formData.append('available_dates', selectedDates.join(', '));
       formData.append('preferred_times', selectedTimes.join(', '));
       formData.append('submitted_at', new Date().toISOString());
