@@ -340,8 +340,9 @@
     const units = params.get('units') || '1';
     const tenantName = decodeURIComponent(params.get('tenant_name') || '');
     const tenantEmail = decodeURIComponent(params.get('tenant_email') || '');
-    const tenantPhone = decodeURIComponent(params.get('tenant_phone') || '');  // v4.3
-    const unitPropertyId = params.get('unit_property_id') || '';  // v4.3: Rentvine property ID passthrough
+    const tenantPhone = decodeURIComponent(params.get('tenant_phone') || '');
+    const propertyId = params.get('property_id') || '';           // v4.4: Rentvine Property ID
+    const unitPropertyId = params.get('unit_property_id') || '';  // v4.3: Rentvine Unit ID
     
     // Webhook URL for availability submission
     const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/uxmmhis/';
@@ -361,11 +362,10 @@
       
       // Generate 3 weeks of weekdays (Mon-Fri)
       const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + 21); // 3 weeks out
+      endDate.setDate(endDate.getDate() + 21);
       
       while (currentDate <= endDate && dates.length < 15) {
         const dayOfWeek = currentDate.getDay();
-        // Skip weekends (0 = Sunday, 6 = Saturday)
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
           dates.push(new Date(currentDate));
         }
@@ -395,19 +395,15 @@
         datesGrid.appendChild(dateOption);
       });
       
-      // Add event listeners to update button state
       document.querySelectorAll('input[name="dates"], input[name="times"]').forEach(input => {
         input.addEventListener('change', updateSubmitButton);
       });
     }
     
-    // Update submit button state
     function updateSubmitButton() {
       const selectedDates = document.querySelectorAll('input[name="dates"]:checked');
       const selectedTimes = document.querySelectorAll('input[name="times"]:checked');
-      const submitBtn = document.getElementById('submitBtn');
-      
-      submitBtn.disabled = selectedDates.length === 0 || selectedTimes.length === 0;
+      document.getElementById('submitBtn').disabled = selectedDates.length === 0 || selectedTimes.length === 0;
     }
     
     // Form submission
@@ -425,20 +421,20 @@
       btn.disabled = true;
       btn.textContent = 'Submitting...';
       
-      // Format dates for display
       const displayDates = selectedDates.map(d => {
         const date = new Date(d + 'T12:00:00');
         return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       });
       
-      // Build form data (works with no-cors)
+      // Build form data - v4.4: includes both property_id and unit_property_id
       const formData = new URLSearchParams();
       formData.append('tenant_email', tenantEmail);
       formData.append('tenant_name', tenantName);
-      formData.append('tenant_phone', tenantPhone);  // v4.3
+      formData.append('tenant_phone', tenantPhone);
       formData.append('property_address', property);
       formData.append('units', units);
-      formData.append('unit_property_id', unitPropertyId);  // v4.3: Rentvine property ID passthrough
+      formData.append('property_id', propertyId);           // v4.4: Rentvine Property ID
+      formData.append('unit_property_id', unitPropertyId);  // v4.3: Rentvine Unit ID
       formData.append('available_dates', selectedDates.join(', '));
       formData.append('preferred_times', selectedTimes.join(', '));
       formData.append('submitted_at', new Date().toISOString());
@@ -451,8 +447,6 @@
           body: formData.toString()
         });
         
-        // With no-cors we can't check response, but data is sent
-        // Show success
         document.getElementById('successDates').textContent = displayDates.join(', ');
         document.getElementById('successTimes').textContent = selectedTimes.join(' or ');
         document.getElementById('formView').classList.add('hidden');
@@ -466,7 +460,6 @@
       }
     });
     
-    // Initialize
     generateDates();
   </script>
 </body>
