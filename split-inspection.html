@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alvara PM — Split Inspection Request</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f4f5;
+      --card: #ffffff;
+      --card-border: rgba(0,0,0,0.06);
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-muted: #a1a1aa;
+      --border: #e4e4e7;
+      --surface: #fafafa;
+      --accent: #18181b;
+      --accent-text: #fafafa;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #166534;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #09090b;
+        --card: #18181b;
+        --card-border: rgba(255,255,255,0.06);
+        --text-primary: #fafafa;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --border: #27272a;
+        --surface: #1c1c1f;
+        --accent: #fafafa;
+        --accent-text: #18181b;
+        --info-bg: #172554;
+        --info-border: #1e3a5f;
+        --info-text: #93c5fd;
+        --success-bg: #052e16;
+        --success-border: #166534;
+        --success-text: #86efac;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-body { padding: 24px; }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .property-name {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 16px 0 4px;
+    }
+
+    .property-meta {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .body-text {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .body-text:last-of-type { margin-bottom: 0; }
+
+    /* Fee comparison */
+    .fee-compare {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .fee-option {
+      flex: 1;
+      padding: 16px;
+      text-align: center;
+      background: var(--surface);
+    }
+
+    .fee-option + .fee-option {
+      border-left: 1px solid var(--border);
+    }
+
+    .fee-option.selected {
+      background: var(--info-bg);
+      border-color: var(--info-border);
+    }
+
+    .fee-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .fee-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .fee-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .fee-option.selected .fee-label { color: var(--info-text); }
+    .fee-option.selected .fee-amount { color: var(--info-text); }
+    .fee-option.selected .fee-desc { color: var(--info-text); opacity: 0.8; }
+
+    /* Info box */
+    .info-box {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 20px 0;
+    }
+
+    .info-box p {
+      font-size: 14px;
+      color: var(--info-text);
+      line-height: 1.5;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-hint {
+      display: block;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .btn-back {
+      display: block;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .btn-back:hover { color: var(--text-primary); }
+
+    /* Success state */
+    .success-box {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .success-box p {
+      font-size: 15px;
+      color: var(--success-text);
+      line-height: 1.5;
+    }
+
+    .success-box strong { font-weight: 600; }
+
+    /* Error state */
+    .error-text {
+      color: #ef4444;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Contact */
+    .contact {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    .contact p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .contact a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .contact .dot {
+      color: var(--text-muted);
+      margin: 0 8px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* States */
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div>
+    <div class="card" id="main-card">
+      <div class="card-body">
+
+        <!-- Header -->
+        <span class="badge">Separate Inspections</span>
+        <h1 class="property-name" id="property-name">—</h1>
+        <p class="property-meta" id="property-meta">—</p>
+
+        <hr class="divider">
+
+        <!-- Confirm View -->
+        <div id="confirm-view">
+          <p class="body-text">
+            You're requesting to schedule inspections separately for this property. Vacant units will be inspected first, and occupied units will be scheduled once the resident is available.
+          </p>
+
+          <!-- Fee comparison -->
+          <div class="fee-compare">
+            <div class="fee-option">
+              <div class="fee-label">Single visit</div>
+              <div class="fee-amount" id="bundled-fee">—</div>
+              <div class="fee-desc">All units together</div>
+            </div>
+            <div class="fee-option selected">
+              <div class="fee-label">Separate visits</div>
+              <div class="fee-amount" id="split-fee">—</div>
+              <div class="fee-desc">Billed individually</div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <p>By confirming, you agree to the separate visit pricing. Each inspection visit will be billed individually per unit.</p>
+          </div>
+
+          <button class="btn-primary" id="confirm-btn" onclick="confirmSplit()">
+            Confirm Separate Inspections
+          </button>
+          <span class="btn-hint">This will notify our team to schedule your vacant units right away.</span>
+          <a class="btn-back" onclick="window.close()">Never mind, keep the single visit</a>
+
+          <p class="error-text hidden" id="error-msg"></p>
+        </div>
+
+        <!-- Success View -->
+        <div id="success-view" class="hidden">
+          <div class="success-box">
+            <p><strong>Request received.</strong><br>We'll begin scheduling vacant unit inspections shortly. You'll receive a confirmation email with the date and time.</p>
+          </div>
+          <span class="btn-hint" style="margin-top: 16px;">You can close this page.</span>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact">
+          <p>Questions? Reach out anytime.</p>
+          <div>
+            <a href="tel:3132218940">(313) 221-8940</a>
+            <span class="dot">&middot;</span>
+            <a href="/cdn-cgi/l/email-protection#abc9d9cecac5c5caebcac7ddcad9cadbc685c8c4c6"><span class="__cf_email__" data-cfemail="9cfeeef9fdf2f2fddcfdf0eafdeefdecf1b2fff3f1">[email&#160;protected]</span></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">Alvara Property Management &middot; Detroit, MI</div>
+  </div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // =========================================================================
+    // CONFIG — Update webhook URL when Zapier Zap is created
+    // =========================================================================
+    const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/XXXXXXX/XXXXXXX/';
+    // =========================================================================
+
+    // Parse URL params
+    const params = new URLSearchParams(window.location.search);
+    const data = {
+      property: params.get('property') || '',
+      owner: params.get('owner') || '',
+      owner_email: params.get('owner_email') || '',
+      units: params.get('units') || '',
+      occupied: params.get('occupied') || '',
+      vacant: params.get('vacant') || '',
+      bundled_fee: params.get('bundled_fee') || '',
+      split_fee: params.get('split_fee') || '',
+      property_id: params.get('property_id') || ''
+    };
+
+    // Populate UI
+    document.getElementById('property-name').textContent = data.property || '—';
+
+    const metaParts = [];
+    if (data.units) metaParts.push(data.units + ' units');
+    if (data.occupied) metaParts.push(data.occupied + ' occupied');
+    if (data.vacant) metaParts.push(data.vacant + ' vacant');
+    document.getElementById('property-meta').textContent = metaParts.join(' · ') || '—';
+
+    document.getElementById('bundled-fee').textContent = data.bundled_fee || '—';
+    document.getElementById('split-fee').textContent = data.split_fee || '—';
+
+    // Confirm handler
+    async function confirmSplit() {
+      const btn = document.getElementById('confirm-btn');
+      const errorEl = document.getElementById('error-msg');
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      errorEl.classList.add('hidden');
+
+      try {
+        const response = await fetch(ZAPIER_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'split_inspection_request',
+            property: data.property,
+            property_id: data.property_id,
+            owner_name: data.owner,
+            owner_email: data.owner_email,
+            total_units: data.units,
+            occupied_units: data.occupied,
+            vacant_units: data.vacant,
+            bundled_fee: data.bundled_fee,
+            split_fee: data.split_fee,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) throw new Error('Request failed');
+
+        // Show success
+        document.getElementById('confirm-view').classList.add('hidden');
+        document.getElementById('success-view').classList.remove('hidden');
+
+      } catch (err) {
+        btn.disabled = fa
