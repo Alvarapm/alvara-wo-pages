@@ -390,8 +390,9 @@
       errorEl.classList.add('hidden');
 
       try {
-        const response = await fetch(ZAPIER_WEBHOOK_URL, {
+        await fetch(ZAPIER_WEBHOOK_URL, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'split_inspection_request',
@@ -408,9 +409,7 @@
           })
         });
 
-        if (!response.ok) throw new Error('Request failed');
-
-        // Show success
+        // no-cors mode: can't read response, but request goes through
         document.getElementById('confirm-view').classList.add('hidden');
         document.getElementById('success-view').classList.remove('hidden');
 
