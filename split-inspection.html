@@ -349,22 +349,22 @@
 
   <script>
     // =========================================================================
-    // CONFIG — Update webhook URL when Zapier Zap is created
+    // CONFIG
     // =========================================================================
     const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/unp5v0v/';
     // =========================================================================
 
-    // Parse URL params
+    // Parse URL params — accept both full names and legacy short names
     const params = new URLSearchParams(window.location.search);
     const data = {
-      property: params.get('property') || '',
-      owner: params.get('owner') || '',
+      property:    params.get('property') || '',
+      owner:       params.get('owner_name') || params.get('owner') || '',
       owner_email: params.get('owner_email') || '',
-      units: params.get('units') || '',
-      occupied: params.get('occupied') || '',
-      vacant: params.get('vacant') || '',
+      units:       params.get('total_units') || params.get('units') || '',
+      occupied:    params.get('occupied_units') || params.get('occupied') || '',
+      vacant:      params.get('vacant_units') || params.get('vacant') || '',
       bundled_fee: params.get('bundled_fee') || '',
-      split_fee: params.get('split_fee') || '',
+      split_fee:   params.get('split_fee') || '',
       property_id: params.get('property_id') || ''
     };
 
