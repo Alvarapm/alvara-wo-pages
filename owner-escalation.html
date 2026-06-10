@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alvara PM — Inspection: Action Needed</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f4f5;
+      --card: #ffffff;
+      --card-border: rgba(0,0,0,0.06);
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-muted: #a1a1aa;
+      --border: #e4e4e7;
+      --surface: #fafafa;
+      --accent: #18181b;
+      --accent-text: #fafafa;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #166534;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #09090b;
+        --card: #18181b;
+        --card-border: rgba(255,255,255,0.06);
+        --text-primary: #fafafa;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --border: #27272a;
+        --surface: #1c1c1f;
+        --accent: #fafafa;
+        --accent-text: #18181b;
+        --info-bg: #172554;
+        --info-border: #1e3a5f;
+        --info-text: #93c5fd;
+        --success-bg: #052e16;
+        --success-border: #166534;
+        --success-text: #86efac;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-body { padding: 24px; }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .property-name {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 16px 0 4px;
+    }
+
+    .property-meta {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .body-text {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .body-text:last-of-type { margin-bottom: 0; }
+
+    /* Action list */
+    .actions { margin: 20px 0 4px; }
+
+    .action {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+      color: var(--text-primary);
+    }
+
+    .action:hover { border-color: var(--info-border); background: var(--info-bg); }
+    .action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .action-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Inline contact-fix form */
+    .fix-form { margin-top: 8px; }
+    .fix-form.hidden { display: none; }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 12px 0 6px;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .field-input:focus { outline: none; border-color: var(--info-border); }
+
+    /* Info box */
+    .info-box {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 20px 0;
+    }
+
+    .info-box p { font-size: 14px; color: var(--info-text); line-height: 1.5; }
+
+    /* Buttons */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      font-family: inherit;
+      margin-top: 16px;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-back {
+      display: block;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .btn-back:hover { color: var(--text-primary); }
+
+    /* Success state */
+    .success-box {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .success-box p { font-size: 15px; color: var(--success-text); line-height: 1.5; }
+    .success-box strong { font-weight: 600; }
+
+    /* Error state */
+    .error-text {
+      color: #ef4444;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* Contact */
+    .contact {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    .contact p { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; }
+
+    .contact a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .contact .dot { color: var(--text-muted); margin: 0 8px; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div>
+    <div class="card" id="main-card">
+      <div class="card-body">
+
+        <!-- Header -->
+        <span class="badge">Action Needed</span>
+        <h1 class="property-name" id="property-name">—</h1>
+        <p class="property-meta" id="property-meta">—</p>
+
+        <hr class="divider">
+
+        <!-- Choose View -->
+        <div id="choose-view">
+          <p class="body-text" id="intro-text">
+            We haven't been able to reach the resident to schedule the onboarding inspection. So your
+            onboarding isn't held up, choose how you'd like to proceed:
+          </p>
+
+          <div class="actions">
+            <!-- A. Authorize entry -->
+            <button class="action" onclick="chooseAuthorize()">
+              <div class="action-title">Authorize entry &rarr;</div>
+              <div class="action-desc">
+                Let us schedule the inspection and enter the unit at that time. We'll give the resident
+                advance notice of the date, as required by their lease.
+              </div>
+            </button>
+
+            <!-- B. Fix tenant contact -->
+            <button class="action" onclick="toggleFix()">
+              <div class="action-title">Update resident contact &rarr;</div>
+              <div class="action-desc">
+                The email or phone we have may be wrong. Give us the right details and we'll reach out again.
+              </div>
+            </button>
+
+            <!-- Inline fix form -->
+            <div class="fix-form hidden" id="fix-form">
+              <label class="field-label" for="new-email">Resident email</label>
+              <input class="field-input" type="email" id="new-email" placeholder="resident@email.com">
+              <label class="field-label" for="new-phone">Resident phone (optional)</label>
+              <input class="field-input" type="tel" id="new-phone" placeholder="(313) 555-0123">
+              <button class="btn-primary" onclick="submitFix()">Send updated contact</button>
+            </div>
+
+            <!-- C. Split this unit off -->
+            <button class="action" onclick="chooseSplit()">
+              <div class="action-title">Inspect the rest now, this unit later &rarr;</div>
+              <div class="action-desc">
+                Schedule the available units now and handle this one separately once the resident responds.
+                Separate visits are billed individually per unit.
+              </div>
+            </button>
+          </div>
+
+          <a class="btn-back" onclick="window.close()">I'll follow up with the resident myself</a>
+          <p class="error-text hidden" id="error-msg"></p>
+        </div>
+
+        <!-- Success View -->
+        <div id="success-view" class="hidden">
+          <div class="success-box">
+            <p id="success-text"><strong>Thank you.</strong><br>Our team has what it needs and will take it from here.</p>
+          </div>
+          <span class="btn-back" style="cursor:default;">You can close this page.</span>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact">
+          <p>Questions? Reach out anytime.</p>
+          <div>
+            <a href="tel:3132218940">(313) 221-8940</a>
+            <span class="dot">&middot;</span>
+            <a href="mailto:breanna@alvarapm.com">breanna@alvarapm.com</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">Alvara Property Management &middot; Detroit, MI</div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIG — "Inspection Escalation Handler" Zap 368063211 catch hook
+    // (account 19843051, same host as the other inspection hooks).
+    // =========================================================================
+    const ESCALATION_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/19843051/43up53u/';
+    // =========================================================================
+
+    // Parse URL params — tolerate both full and short names (mirrors split-inspection.html)
+    const params = new URLSearchParams(window.location.search);
+    const data = {
+      property:         params.get('property') || '',
+      property_id:      params.get('property_id') || '',
+      owner:            params.get('owner_name') || params.get('owner') || '',
+      owner_email:      params.get('owner_email') || '',
+      unit_number:      params.get('unit_number') || '',
+      unit_property_id: params.get('unit_property_id') || '',
+      unit_label:       params.get('unit_label') || '',
+      days_waiting:     params.get('days_waiting') || ''
+    };
+
+    // Populate UI
+    document.getElementById('property-name').textContent = data.property || '—';
+
+    var metaParts = [];
+    if (data.unit_label) metaParts.push(data.unit_label);
+    else if (data.unit_number) metaParts.push('Unit ' + data.unit_number);
+    if (data.days_waiting) metaParts.push(data.days_waiting + ' days waiting');
+    document.getElementById('property-meta').textContent = metaParts.join(' · ') || '—';
+
+    if (data.days_waiting) {
+      document.getElementById('intro-text').textContent =
+        'We’ve tried to reach the resident' +
+        (data.unit_label ? ' in ' + data.unit_label : (data.unit_number ? ' in unit ' + data.unit_number : '')) +
+        ' for ' + data.days_waiting + ' days to schedule the onboarding inspection, with no response. ' +
+        'So your onboarding isn’t held up, choose how you’d like to proceed:';
+    }
+
+    function post(payload, successHtml) {
+      var errorEl = document.getElementById('error-msg');
+      errorEl.classList.add('hidden');
+      var body = Object.assign({
+        property: data.property,
+        property_id: data.property_id,
+        owner_name: data.owner,
+        owner_email: data.owner_email,
+        unit_number: data.unit_number,
+        unit_property_id: data.unit_property_id,
+        unit_label: data.unit_label,
+        days_waiting: data.days_waiting,
+        timestamp: new Date().toISOString()
+      }, payload);
+
+      return fetch(ESCALATION_WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function () {
+        document.getElementById('choose-view').classList.add('hidden');
+        if (successHtml) document.getElementById('success-text').innerHTML = successHtml;
+        document.getElementById('success-view').classList.remove('hidden');
+      }).catch(function () {
+        errorEl.textContent = 'Something went wrong. Please try again or contact us directly.';
+        errorEl.classList.remove('hidden');
+      });
+    }
+
+    function chooseAuthorize() {
+      post({ action: 'authorize_entry' },
+        '<strong>Authorized.</strong><br>We’ll schedule the inspection, give the resident the required notice, and confirm the date with you.');
+    }
+
+    function toggleFix() {
+      document.getElementById('fix-form').classList.toggle('hidden');
+    }
+
+    function submitFix() {
+      var email = (document.getElementById('new-email').value || '').trim();
+      var phone = (document.getElementById('new-phone').value || '').trim();
+      var errorEl = document.getElementById('error-msg');
+      if (!email) {
+        errorEl.textContent = 'Please enter the resident’s email.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      post({ action: 'fix_contact', new_email: email, new_phone: phone },
+        '<strong>Got it.</strong><br>We’ll reach out to the resident again at the updated contact info.');
+    }
+
+    function chooseSplit() {
+      post({ action: 'split_unit' },
+        '<strong>Done.</strong><br>We’ll schedule the available units now and handle this one separately once the resident responds.');
+    }
+  </script>
+
+</body>
+</html>
