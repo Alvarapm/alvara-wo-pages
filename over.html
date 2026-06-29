@@ -305,7 +305,16 @@
     document.getElementById('woNumber').textContent = wo;
     document.getElementById('woNumberSuccess').textContent = wo;
     document.getElementById('propertyAddress').textContent = decodeURIComponent(property);
-    
+
+    // Guard: this page must be opened from the pipeline link, which carries ?wo=. Without it there is
+    // nothing to report — disable submit so we never POST an empty payload (the downstream Zap also
+    // filters on `wo`, so empty fires are double-protected).
+    if (wo.trim() === '') {
+      const sb = document.getElementById('submitBtn');
+      sb.disabled = true;
+      sb.textContent = 'Link missing work order';
+    }
+
     // Character counter
     const notesField = document.getElementById('notes');
     const charCount = document.getElementById('charCount');
@@ -316,7 +325,13 @@
     // Form submission
     document.getElementById('reviewForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
+      // Never submit without a work order id — an empty `wo` crashes the downstream Zap.
+      if (wo.trim() === '') {
+        alert('No work order found in this link. Please open this page from the pipeline link.');
+        return;
+      }
+
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = 'Submitting...';
