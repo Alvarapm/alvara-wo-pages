@@ -380,10 +380,32 @@
     document.getElementById('bundled-fee').textContent = data.bundled_fee || '—';
     document.getElementById('split-fee').textContent = data.split_fee || '—';
 
+    // Guard: this page must be opened from the link in the owner's email, which carries the
+    // property in the query string. If `property` is missing (page opened directly / link without
+    // params), there is nothing to act on — disable Confirm so we never POST an empty request that
+    // the downstream Zap would reject. (The Zap also filters on `property`, so empty fires are
+    // double-protected.)
+    const hasProperty = data.property.trim() !== '';
+    if (!hasProperty) {
+      const btn = document.getElementById('confirm-btn');
+      const errorEl = document.getElementById('error-msg');
+      btn.disabled = true;
+      btn.textContent = 'Link missing property details';
+      errorEl.textContent = 'This link is missing your property information. Please open it from the link in your email, or contact us below.';
+      errorEl.classList.remove('hidden');
+    }
+
     // Confirm handler
     async function confirmSplit() {
       const btn = document.getElementById('confirm-btn');
       const errorEl = document.getElementById('error-msg');
+
+      // Hard stop: never send an empty/contextless request, even if the button is somehow triggered.
+      if (data.property.trim() === '') {
+        errorEl.textContent = 'This link is missing your property information. Please open it from the link in your email, or contact us below.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = 'Submitting...';
