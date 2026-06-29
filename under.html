@@ -251,6 +251,18 @@
     document.getElementById('woNumberOver').textContent = wo;
     
     async function submitReview() {
+      // Never submit without a work order id — an empty `wo` crashes the downstream Zap
+      // (Google Sheets lookup on an empty key) and leaves the notification email with no recipient.
+      if (wo.trim() === '') {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('successUnder').style.display = 'none';
+        document.getElementById('successOver').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        document.getElementById('errorMessage').textContent =
+          'No work order found in this link. Please open this page from the pipeline link.';
+        return;
+      }
+
       // Show loading
       document.getElementById('loadingState').style.display = 'block';
       document.getElementById('successUnder').style.display = 'none';
@@ -289,7 +301,9 @@
       }
     }
     
-    // Auto-submit on page load
+    // Auto-submit on page load — but only when we actually have a work order to report.
+    // Without a `wo` (direct hit / paramless link / a link-unfurl prefetch), submitReview()
+    // shows the error state instead of POSTing an empty payload.
     submitReview();
   </script>
 </body>
