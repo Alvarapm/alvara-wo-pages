@@ -357,6 +357,9 @@
     const property = decodeURIComponent(params.get('property') || '');
     const startTime = decodeURIComponent(params.get('start_time') || '');
     const tenantName = decodeURIComponent(params.get('tenant_name') || '');
+    // Signed-link params — see schedule-inspection.html.
+    const exp = params.get('exp') || '';
+    const sig = params.get('sig') || '';
     
     // API URLs
     const SLOTS_API = 'https://alvara-lovat.vercel.app/api/booking-windows';
@@ -495,7 +498,9 @@
       
       const data = {
         job_id: jobId,
-        start_time: selectedSlot.start_time
+        start_time: selectedSlot.start_time,
+        exp: exp,
+        sig: sig
       };
       
       try {

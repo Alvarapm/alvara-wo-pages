@@ -323,6 +323,10 @@
     const price = params.get('price') || '0';
     const tenantName = decodeURIComponent(params.get('tenant_name') || '');
     const tenantEmail = decodeURIComponent(params.get('tenant_email') || '');
+    // Signed-link params. Minted alongside the link; forwarded verbatim so the
+    // API can verify the property/units/price were not edited in the URL.
+    const exp = params.get('exp') || '';
+    const sig = params.get('sig') || '';
     
     // API URLs
     const SLOTS_API = 'https://alvara-lovat.vercel.app/api/booking-windows';
@@ -441,7 +445,9 @@
         price: parseInt(price),
         tenant_name: tenantName,
         tenant_email: tenantEmail,
-        start_time: selectedSlot.start_time
+        start_time: selectedSlot.start_time,
+        exp: exp,
+        sig: sig
       };
       
       try {
