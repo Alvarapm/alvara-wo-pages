@@ -356,7 +356,14 @@
       scheduleForm.classList.add('hidden');
       
       try {
-        const response = await fetch(SLOTS_API);
+        // The slot engine authenticates too (MCMX-95). A public static page
+        // cannot hold a secret, so we re-present the signed link we arrived
+        // with — the same exp/sig already forwarded in the booking POST below,
+        // over the same canonical fields. Nothing new is minted anywhere.
+        const slotsUrl = SLOTS_API + '?' + new URLSearchParams({
+          kind: 'book', property: property, units: units, price: price, exp: exp, sig: sig
+        });
+        const response = await fetch(slotsUrl);
         const data = await response.json();
         
         loadingState.classList.add('hidden');

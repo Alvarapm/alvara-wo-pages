@@ -413,7 +413,12 @@
       rescheduleForm.classList.add('hidden');
       
       try {
-        const response = await fetch(SLOTS_API);
+        // See schedule-inspection.html — the slot engine authenticates too
+        // (MCMX-95), and this page re-presents the signed link it arrived with.
+        const slotsUrl = SLOTS_API + '?' + new URLSearchParams({
+          kind: 'reschedule', job_id: jobId, exp: exp, sig: sig
+        });
+        const response = await fetch(slotsUrl);
         const data = await response.json();
         
         loadingState.classList.add('hidden');
