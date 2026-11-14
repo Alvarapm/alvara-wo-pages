@@ -5,9 +5,6 @@ owner_approved.html
 owner-approval.js
 under.html
 over.html
-approval.html
-re-quote_form.html
-schedule-inspection.html
 reschedule-inspection.html
 inspection-availability.html
 split-inspection.html
@@ -19,7 +16,7 @@ tests/
 | | |
 |---|---|
 | **What it does** | Static web pages that an email or text links to, so an owner can approve a work order, staff can make the $500 call, and (until 21 Oct 2026) tenants and owners could answer onboarding inspection requests. |
-| **Status** | mixed (checked 2026-11-03): **live** `owner_approved.html` (+ `owner-approval.js`), `under.html`, `over.html`; **retired in practice** the four inspection pages (their Zaps were turned off 2026-10-21); **dead** `schedule-inspection.html`, `approval.html`, `re-quote_form.html` (nobody known links them). All eleven files are still served. |
+| **Status** | mixed (updated 2026-11-14): **live** `owner_approved.html` (+ `owner-approval.js`), `under.html`, `over.html`; the four inspection pages are now **"this link has moved" stubs** that send nothing (2026-11-14); `schedule-inspection.html`, `approval.html` and `re-quote_form.html` were **deleted** 2026-11-14 (no linker found in Maintenance, the alvara monorepo or the saved Zap snapshots, checked 2026-11-14). |
 | **Lead** | Andrey (no lead recorded; `docs/systems/INVENTORY.md` §1 in the alvara monorepo says "ours") |
 | **Code** | the HTML files at the repo root, `owner-approval.js`, `tests/`, `.github/workflows/test.yml` |
 | **Last verified** | 2026-11-03, Andrey with Claude: this repo's `main` (0c01fa6) read and its test run (7/7 pass); GitHub Pages settings read with `gh api` (read only); every served file fetched with GET (all 200); callers searched in Maintenance `origin/main` (16d24424), the alvara monorepo `origin/main` (3a19880b) and alvara-legacy-api `origin/main` (ec3a0a2). Zapier not read. No POST made. |
@@ -43,13 +40,13 @@ alvara monorepo). Since the 2026-10-21 cutover no live sender links the copies h
 | `owner_approved.html` + `owner-approval.js` | the owner of an over-$500 work order | Zap 2B's owner email; the link is `owner_approved.html#token=<capability>`, built by the Zap Code step in Maintenance `scripts/zapier/bl74/issue.js`, token issued by Maintenance | GET and POST `https://maintenance-ivory-kappa.vercel.app/api/webhooks/owner-approval` | **live** since 2026-09-23 (Maintenance `docs/backlog/BL-74.md`, "Wave 2 production") |
 | `under.html` | Chris, saying a work order is under $500 | Zap 1's new-work-order email, which Chris clicks (Maintenance `docs/WO-OWNER-ZAP-ARMING.md`, measured 2026-08-07) | POST to a Zapier catch hook (Zap 2A), `{wo, status, limit, timestamp}` | probably live: Zap 1 and 2A were on at the last Zapier read (INVENTORY §3.1, 2026-08-31 snapshot; not re-read) |
 | `over.html` | Chris, saying it may go over $500 | the same Zap 1 email | form (likelihood ~25% to 90%+, notes) POSTed to a Zapier catch hook (Zap 2B) | probably live, same evidence |
-| `approval.html` | "Approval Requested" screen | no linker found (checked 2026-11-03) | POST to a Zapier catch hook ("Zap 3" in its comment), `{wo, action: "approval_requested", token}` | probably dead; last change 2026-01-18 |
-| `re-quote_form.html` | a re-quote after an owner denial | no linker found (checked 2026-11-03) | hidden form POST (urlencoded) into an iframe, a Zapier catch hook, `action: "vendor_requote_submitted"` | probably dead; last change 2026-01-22 |
-| `schedule-inspection.html` | a tenant booking an inspection | **no Zap mints this link** (Maintenance `docs/INSPECTION-LINK-SIGNING.md`, measured 2026-07-30) | GET `https://alvara-lovat.vercel.app/api/booking-windows?kind=book...`, POST `.../api/book-inspection` | dead |
-| `reschedule-inspection.html` | a tenant moving a booked inspection | P7 Zap 3 "Schedule Inspection" (a short link), turned off 2026-10-21 (INVENTORY §3.1) | GET `.../api/booking-windows?kind=reschedule&job_id...`, POST `.../api/reschedule-inspection` | retired; old links work until they expire (§8) |
-| `inspection-availability.html` | a tenant giving dates for the onboarding inspection | P7 Zap 1 (a short link), turned off 2026-10-21 | urlencoded POST to a Zapier catch hook | retired; replaced by the OS availability page |
-| `split-inspection.html` | an owner asking for separate inspections per unit | the P7 "Delay emails" Zap, turned off 2026-10-21 | POST to a Zapier catch hook, `action: "split_inspection_request"` | retired; replaced by the OS split page |
-| `owner-escalation.html` | an owner choosing what to do about a silent resident | the P7 cadence Zap (day 14), turned off 2026-10-21 | POST to a Zapier catch hook (Zap 368063211, per its own comment), `action` one of `authorize_entry`, `fix_contact`, `split_unit` | retired; replaced by the OS escalation page |
+| `reschedule-inspection.html` | anyone holding an old reschedule link | nobody (its Zap was turned off 2026-10-21) | nothing | **stub** since 2026-11-14: "This link has moved", reply to the latest Alvara email or text |
+| `inspection-availability.html` | anyone holding an old availability link | nobody (turned off 2026-10-21) | nothing | **stub** since 2026-11-14; replaced by the OS availability page |
+| `split-inspection.html` | anyone holding an old split link | nobody (turned off 2026-10-21) | nothing | **stub** since 2026-11-14; replaced by the OS split page |
+| `owner-escalation.html` | anyone holding an old escalation link | nobody (turned off 2026-10-21) | nothing | **stub** since 2026-11-14; replaced by the OS escalation page |
+
+Deleted 2026-11-14 (old links now 404): `approval.html` (posted to a "Zap 3" hook), `re-quote_form.html` (posted to a
+re-quote hook), `schedule-inspection.html` (called the alvara service). None had a known linker.
 
 Each page's own script names its hook.
 "No linker found" means: no file in the four repos above builds a link to the page, and the Alvara WO Chat App
@@ -136,15 +133,12 @@ The pages store nothing: no cookie, no local storage (the test fails if `owner-a
 This repository is public, so this section names problems without the detail of how to misuse them. The full
 findings, with the evidence, are in the private Maintenance backlog: `docs/backlog/BL-134.md`, items A20 to A23.
 
-- 2026-11-03: the four inspection pages (availability, reschedule, split, escalation) lost their senders on
-  2026-10-21. Old links still open them, and some still act (BL-134 A20, A21). Replace each with a short "this
-  link has moved, contact the office" page, or delete them.
-- 2026-11-03: `schedule-inspection.html` is dead (no linker since at least 2026-07-30) but still served.
-  `approval.html` and `re-quote_form.html` have no known linker; probably dead. Delete them once Zapier can be
-  checked (BL-134 A22).
-- 2026-11-03: the older pages (`under.html`, `over.html`, `approval.html`, `re-quote_form.html` and the
-  inspection pages) do not check a signed link the way `owner_approved.html` does (BL-134 A22, A23). Retire them
-  once nobody uses the email path.
+- 2026-11-14: done. The four inspection pages are "this link has moved" stubs that send nothing, and
+  `schedule-inspection.html`, `approval.html` and `re-quote_form.html` are deleted (BL-134 A20 to A22). Their hook
+  addresses stay in git history; the Zaps behind them are off (checked 2026-11-14) except Split Inspection_owner,
+  which is on with 0 runs.
+- 2026-11-03: `under.html` and `over.html` do not check a signed link the way `owner_approved.html` does
+  (BL-134 A23). Decided 2026-11-14 (Zach): they retire with Zaps 2A/2B when the old work-order line retires.
 - 2026-11-03: `under.html` links the internal Pipeline spreadsheet; only the sheet's own sharing protects it.
 - 2026-11-03: everything tracked is published, including `README.md`, `tests/` and `docs/`. `main` has no branch
   protection and CI does not gate the Pages deploy.
